@@ -1,7 +1,7 @@
 <?php
 
-require_once(__DIR__ . "/BaseModel.php");
-require_once(__DIR__ . "/../dto/UserDTO.php");
+require_once(__DIR__ . '/BaseModel.php');
+require_once(__DIR__ . '/../dto/UserDTO.php');
 
 class UserModel extends BaseModel
 {
@@ -34,14 +34,14 @@ class UserModel extends BaseModel
     public function getAll(): array
     {
         return [
-            new UserDTO(1, "foo@foo.com", "foo_user"),
-            new UserDTO(2, "bar@bar.com", "bar_user"),
-            new UserDTO(3, "baz@baz.com", "baz_user")
+            new UserDTO(1, 'foo@foo.com', 'foo_user'),
+            new UserDTO(2, 'bar@bar.com', 'bar_user'),
+            new UserDTO(3, 'baz@baz.com', 'baz_user')
         ];
     }
 
     public function get(int $id): UserDTO
     {
-        return new UserDTO(1, "foo@foo.com", "foo_user");
+        return new UserDTO(1, 'foo@foo.com', 'foo_user');
     }
 }
