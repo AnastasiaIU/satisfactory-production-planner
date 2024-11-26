@@ -41,7 +41,6 @@ class MachineService
             "/Script/CoreUObject.Class'/Script/FactoryGame.FGBuildableResourceExtractor'"
         ];
 
-        // Filter the data
         $filteredClasses = [];
         foreach ($data as $item) {
             if (isset($item['NativeClass']) && in_array($item['NativeClass'], $validNativeClasses, true)) {

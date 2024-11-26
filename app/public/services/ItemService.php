@@ -28,11 +28,22 @@ class ItemService
             return;
         }
 
+        $validNativeClasses = [
+            "/Script/CoreUObject.Class'/Script/FactoryGame.FGItemDescriptor'",
+            "/Script/CoreUObject.Class'/Script/FactoryGame.FGResourceDescriptor'",
+            "/Script/CoreUObject.Class'/Script/FactoryGame.FGItemDescriptorBiomass'",
+            "/Script/CoreUObject.Class'/Script/FactoryGame.FGItemDescriptorNuclearFuel'",
+            "/Script/CoreUObject.Class'/Script/FactoryGame.FGPowerShardDescriptor'",
+            "/Script/CoreUObject.Class'/Script/FactoryGame.FGAmmoTypeProjectile'",
+            "/Script/CoreUObject.Class'/Script/FactoryGame.FGAmmoTypeSpreadshot'",
+            "/Script/CoreUObject.Class'/Script/FactoryGame.FGAmmoTypeInstantHit'",
+            "/Script/CoreUObject.Class'/Script/FactoryGame.FGItemDescriptorPowerBoosterFuel'"
+        ];
+
         $filteredClasses = [];
         foreach ($data as $item) {
-            if (isset($item['NativeClass']) && $item['NativeClass'] === "/Script/CoreUObject.Class'/Script/FactoryGame.FGItemDescriptor'") {
-                $filteredClasses = $item['Classes'] ?? [];
-                break;
+            if (isset($item['NativeClass']) && in_array($item['NativeClass'], $validNativeClasses, true)) {
+                $filteredClasses = array_merge($filteredClasses, $item['Classes'] ?? []);
             }
         }
 
