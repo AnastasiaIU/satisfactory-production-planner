@@ -35,12 +35,17 @@ class MachineService
             return;
         }
 
+        $validNativeClasses = [
+            "/Script/CoreUObject.Class'/Script/FactoryGame.FGBuildableManufacturer'",
+            "/Script/CoreUObject.Class'/Script/FactoryGame.FGBuildableManufacturerVariablePower'",
+            "/Script/CoreUObject.Class'/Script/FactoryGame.FGBuildableResourceExtractor'"
+        ];
+
         // Filter the data
         $filteredClasses = [];
         foreach ($data as $item) {
-            if (isset($item['NativeClass']) && $item['NativeClass'] === "/Script/CoreUObject.Class'/Script/FactoryGame.FGBuildableManufacturer'") {
-                $filteredClasses = $item['Classes'] ?? [];
-                break;
+            if (isset($item['NativeClass']) && in_array($item['NativeClass'], $validNativeClasses, true)) {
+                $filteredClasses = array_merge($filteredClasses, $item['Classes'] ?? []);
             }
         }
 
