@@ -8,5 +8,6 @@ Route::add('/', function () {
     $itemController = new ItemController();
     $machineController = new MachineController();
     $recipeController = new RecipeController();
+    $items = $itemController->fetchAll();
     require(__DIR__ . '/../views/pages/index.php');
 });

@@ -1,1 +1,22 @@
 /* Add custom styles here */
+:root {
+    height: 100vh;
+}
+
+body {
+    height: 100%;
+}
+
+.bg-ficsit-orange {
+    background-color: var(--ficsit-orange) !important;
+    background: var(--ficsit-orange) !important;
+}
+
+.image-height-32 {
+    max-width: 100%;
+    height: 32px;
+}
+
+.dropdown-menu {
+    max-height: 45vh;
+}

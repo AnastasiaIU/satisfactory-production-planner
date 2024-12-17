@@ -44,21 +44,28 @@ class ItemService
         foreach ($data as $item) {
             if (isset($item['NativeClass']) && in_array($item['NativeClass'], $validNativeClasses, true)) {
                 $filteredClasses = array_merge($filteredClasses, $item['Classes'] ?? []);
-            }
-        }
 
-        foreach ($filteredClasses as $item) {
-            $id = $item['ClassName'] ?? null;
-            $display_name = $item['mDisplayName'] ?? null;
-            $icon_name = $item['mSmallIcon'] ?? null;
+                $types = array(
+                    "/Script/CoreUObject.Class'/Script/FactoryGame.FGResourceDescriptor'" => "Raw resources",
+                    "mastercard" => "MSC",
+                    "maestro" => "MAE",
+                    "amex" => "AMX");
+                $type = $types[$item['NativeClass']] ?? "Other";
 
-            if ($id && $display_name && $icon_name) {
-                $segments = explode('/', $icon_name);
-                $last_segment = end($segments);
-                $parts = explode('.', $last_segment);
-                $icon_name = str_replace('IconDesc_', '', $parts[0]) . '.png';
+                foreach ($item['Classes'] as $item) {
+                    $id = $item['ClassName'] ?? null;
+                    $display_name = $item['mDisplayName'] ?? null;
 
-                $this->itemModel->insertRecord($id, $display_name, $icon_name);
+                    $icon_name = $item['mSmallIcon'] ?? null;
+                    $segments = explode('/', $icon_name);
+                    $last_segment = end($segments);
+                    $parts = explode('.', $last_segment);
+                    $icon_name = str_replace('IconDesc_', '', $parts[0]) . '.png';
+
+                    if ($id && $display_name && $icon_name && $type) {
+                        $this->itemModel->insertRecord($id, $display_name, $icon_name, $type);
+                    }
+                }
             }
         }
     }
