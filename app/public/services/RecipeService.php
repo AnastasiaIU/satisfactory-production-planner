@@ -5,6 +5,23 @@ require_once(__DIR__ . '/../models/RecipeModel.php');
 class RecipeService
 {
     private RecipeModel $recipeModel;
+    private $ficsmas = [
+        'Recipe_XmasBall1_C',
+        'Recipe_XmasBall2_C',
+        'Recipe_XmasBall3_C',
+        'Recipe_XmasBall4_C',
+        'Recipe_XmasBallCluster_C',
+        'Recipe_XmasBow_C',
+        'Recipe_XmasBranch_C',
+        'Recipe_XmasStar_C',
+        'Recipe_XmasWreath_C',
+        'Recipe_CandyCane_C',
+        'Recipe_Snow_C',
+        'Recipe_Snowball_C',
+        'Recipe_Fireworks_01_C',
+        'Recipe_Fireworks_02_C',
+        'Recipe_Fireworks_03_C'
+    ];
 
     public function __construct()
     {
@@ -38,26 +55,27 @@ class RecipeService
 
         foreach ($filteredClasses as $item) {
             $id = $item['ClassName'] ?? null;
+            if (in_array($id, $this->ficsmas)) continue;
+
             $produced_in = $item['mProducedIn'] ?? null;
+            $matches = [];
+            preg_match_all('/Build_[^.]+_C/', $produced_in, $matches);
+            $filteredMachines = array_filter($matches[0], function ($machine) {
+                return stripos($machine, 'WorkBench') === false;
+            });
+            // Skip this recipe if no valid machines are found
+            if (empty($filteredMachines)) {
+                continue;
+            }
+            // Get the valid machine
+            $produced_in = array_values($filteredMachines)[0];
+
             $display_name = $item['mDisplayName'] ?? null;
+            $is_alternative = str_contains($id, 'Recipe_Alternate_');
 
             if ($id && $produced_in && $display_name) {
-                $matches = [];
-                preg_match_all('/Build_[^.]+_C/', $produced_in, $matches);
-                $filteredMachines = array_filter($matches[0], function ($machine) {
-                    return stripos($machine, 'WorkBench') === false;
-                });
-
-                // Skip this recipe if no valid machines are found
-                if (empty($filteredMachines)) {
-                    continue;
-                }
-
-                // Get the first valid machine
-                $produced_in = array_values($filteredMachines)[0];
-
                 // Insert the valid recipe into the database
-                $this->recipeModel->insertRecipe($id, $produced_in, $display_name);
+                $this->recipeModel->insertRecipe($id, $produced_in, $display_name, $is_alternative);
             }
         }
     }
@@ -96,6 +114,8 @@ class RecipeService
             }
 
             $recipe_id = $item['ClassName'] ?? null;
+            if (in_array($recipe_id, $this->ficsmas)) continue;
+
             $products = $item['mProduct'] ?? null;
 
             if ($recipe_id && $products) {
@@ -158,6 +178,8 @@ class RecipeService
             }
 
             $recipe_id = $item['ClassName'] ?? null;
+            if (in_array($recipe_id, $this->ficsmas)) continue;
+
             $ingredients = $item['mIngredients'] ?? null;
 
             if ($recipe_id && $ingredients) {

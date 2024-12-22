@@ -6,7 +6,7 @@ require_once(__DIR__ . '/../models/ItemModel.php');
 
 class ItemController
 {
-    private $itemModel;
+    private ItemModel $itemModel;
     private ItemService $itemService;
 
     public function __construct()
@@ -19,8 +19,8 @@ class ItemController
         }
     }
 
-    public function fetchAll(): array
+    public function fetchAllProducible(): array
     {
-        return $this->itemModel->fetchAll();
+        return $this->itemModel->fetchAllProducible();
     }
 }

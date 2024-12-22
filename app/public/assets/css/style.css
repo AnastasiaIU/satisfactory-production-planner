@@ -20,3 +20,12 @@ body {
 .dropdown-menu {
     max-height: 45vh;
 }
+
+/* Style for the category text */
+.dropdown-header {
+    font-size: 1.2rem; /* Adjust the font size */
+    color: #ffffff; /* Set a custom color */
+    padding: 0.5rem 1rem; /* Add padding */
+    margin-top: 0; /* Add spacing below */
+    background: #808182;
+}
