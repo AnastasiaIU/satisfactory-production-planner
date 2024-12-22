@@ -108,33 +108,41 @@ document.addEventListener("DOMContentLoaded", () => {
             const listItem = document.createElement("li");
             listItem.className = "list-group-item d-flex align-items-center justify-content-between border-0";
             listItem.innerHTML = `
-                <div class="d-flex align-items-center">
-                    <img src="${itemIcon}" alt="icon" style="width: 50px; height: 50px; margin-right: 10px;">
-                    <span>${itemName}</span>
-                </div>
-                <button class="btn btn-sm btn-danger">Delete</button>
-            `;
+            <div class="d-flex align-items-center">
+                <img src="${itemIcon}" alt="icon" style="width: 50px; height: 50px; margin-right: 10px;">
+                <span>${itemName}</span>
+            </div>
+            <div class="d-flex align-items-center">
+                <input type="number" class="form-control text-center quantity-input mx-2" value="1" min="0" step="1" style="width: 150px;">
+            </div>
+        `;
 
             // Hide the dropdown item
             target.style.display = "none";
-
-            // Add delete functionality to the list item
-            listItem.querySelector(".btn-danger").addEventListener("click", () => {
-                // Remove the list item
-                listItem.remove();
-
-                // Show the corresponding dropdown item again
-                const dropdownItem = dropdownItemsContainer.querySelector(`[data-item-id="${itemId}"]`);
-                if (dropdownItem) {
-                    dropdownItem.style.display = ""; // Make it visible again
-                }
-            });
 
             // Append the new list item to the output list
             itemList.appendChild(listItem);
 
             // Fetch and display the production graph
             displayProductionGraph(itemId);
+
+            // Handle quantity change
+            const quantityInput = listItem.querySelector(".quantity-input");
+            quantityInput.addEventListener("change", () => {
+                const currentValue = parseFloat(quantityInput.value) || 0;
+
+                if (currentValue === 0) {
+                    // Remove the list item
+                    listItem.remove();
+
+                    // Immediately show the corresponding dropdown item
+                    const dropdownItem = dropdownItemsContainer.querySelector(`[data-item-id="${itemId}"]`);
+                    if (dropdownItem) {
+                        dropdownItem.style.display = ""; // Make it visible again
+                        dropdownItem.offsetHeight; // Force reflow
+                    }
+                }
+            });
         }
     });
 
