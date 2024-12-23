@@ -135,11 +135,17 @@ document.addEventListener("DOMContentLoaded", () => {
                     // Remove the list item
                     listItem.remove();
 
-                    // Immediately show the corresponding dropdown item
+                    // Show the corresponding dropdown item again
                     const dropdownItem = dropdownItemsContainer.querySelector(`[data-item-id="${itemId}"]`);
                     if (dropdownItem) {
                         dropdownItem.style.display = ""; // Make it visible again
-                        dropdownItem.offsetHeight; // Force reflow
+                    }
+
+                    // Remove the corresponding production graph
+                    const productionGraphContainer = document.getElementById("productionGraph");
+                    const graphElement = productionGraphContainer.querySelector(`[data-item-id="${itemId}"]`);
+                    if (graphElement) {
+                        graphElement.remove();
                     }
                 }
             });
@@ -232,17 +238,49 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
 
                 const productionGraphContainer = document.getElementById("productionGraph");
-                productionGraphContainer.innerHTML = `
-                    <div class="graph-container d-flex align-items-center justify-content-between">
-                        <div class="machine">
-                            <img src="/assets/images/${data.machine_icon}" alt="Machine" class="circle">
-                        </div>
-                        <div class="arrow">➔</div>
-                        <div class="item">
-                            <img src="/assets/images/${data.item_icon}" alt="${data.display_name}" class="square">
-                        </div>
+
+                // Check if a graph for this item already exists
+                if (!productionGraphContainer.querySelector(`[data-item-id="${itemId}"]`)) {
+                    // Create a graph container for this item
+                    const graphElement = document.createElement("div");
+                    graphElement.className = "graph-container d-flex align-items-start align-items-center m-3";
+                    graphElement.setAttribute("data-item-id", itemId);
+
+                    // Populate the machine image
+                    graphElement.innerHTML = `
+                    <div class="machine">
+                        <img src="/assets/images/${data.machine_icon}" alt="Machine" class="circle">
                     </div>
+                    <div class="arrow">➔</div>
+                    <div class="outputs-column d-flex flex-column align-items-start"></div>
                 `;
+
+                    productionGraphContainer.appendChild(graphElement);
+
+                    // Fetch the outputs for this recipe
+                    fetch(`/getRecipeOutputs?recipe_id=${data.recipe_id}`)
+                        .then((response) => {
+                            if (!response.ok) throw new Error("Failed to load recipe outputs.");
+                            return response.json();
+                        })
+                        .then((outputs) => {
+                            console.log("Recipe outputs:", outputs);
+                            const outputsColumn = graphElement.querySelector(".outputs-column");
+
+                            outputs.forEach((output) => {
+                                // Create an output item
+                                const outputElement = document.createElement("div");
+                                outputElement.className = "output-item d-flex align-items-center mb-2";
+
+                                outputElement.innerHTML = `
+                                <img src="/assets/images/${output.icon_name}" alt="${output.display_name}" class="square">
+                            `;
+
+                                outputsColumn.appendChild(outputElement);
+                            });
+                        })
+                        .catch((err) => console.error("Error loading recipe outputs:", err));
+                }
             })
             .catch((err) => console.error("Error loading production graph:", err));
     }

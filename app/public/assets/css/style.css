@@ -29,3 +29,66 @@ body {
     margin-top: 0; /* Add spacing below */
     background: var(--iron);
 }
+
+.machine, .item {
+    padding: 8px;
+}
+
+.circle {
+    height: 80px;
+    width: 80px;
+    border-radius: 50%;
+    padding: 2px;
+    border: #b48865 2px solid;
+}
+
+.square {
+    height: 80px;
+    width: 80px;
+    border-radius: 5%;
+    padding: 2px;
+    border: #c63722 2px solid;
+}
+
+.machine .circle {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    border: 2px solid #ccc;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.arrow {
+    font-size: 2rem;
+    margin: 0 10px;
+}
+
+.outputs-column .square {
+    width: 50px;
+    height: 50px;
+    margin-left: 10px;
+}
+
+.output-item {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.output-item .arrow-line {
+    width: 50px;
+    height: 2px;
+    background-color: #000;
+    position: relative;
+    margin-right: 10px;
+}
+
+.output-item .arrow-line::after {
+    content: "➔";
+    position: absolute;
+    right: -10px;
+    font-size: 1rem;
+    color: #000;
+}

@@ -38,7 +38,9 @@ class MachineService
         $validNativeClasses = [
             "/Script/CoreUObject.Class'/Script/FactoryGame.FGBuildableManufacturer'",
             "/Script/CoreUObject.Class'/Script/FactoryGame.FGBuildableManufacturerVariablePower'",
-            "/Script/CoreUObject.Class'/Script/FactoryGame.FGBuildableResourceExtractor'"
+            "/Script/CoreUObject.Class'/Script/FactoryGame.FGBuildableResourceExtractor'",
+            "/Script/CoreUObject.Class'/Script/FactoryGame.FGBuildableWaterPump'",
+            "/Script/CoreUObject.Class'/Script/FactoryGame.FGBuildableFrackingExtractor'"
         ];
 
         $filteredClasses = [];
