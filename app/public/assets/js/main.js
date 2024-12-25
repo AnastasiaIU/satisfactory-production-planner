@@ -14,8 +14,6 @@ const categoryOrder = [
 ];
 
 document.addEventListener("DOMContentLoaded", () => {
-    console.log("JavaScript loaded!");
-
     /** Clear search input when dropdown is closed **/
     const dropdown = document.querySelector(".dropdown");
     const searchInput = document.getElementById("dropdownSearch");

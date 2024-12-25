@@ -1,8 +1,13 @@
 <?php
 
+use utils\ErrorHandler;
+
+/**
+ * Handles the database connection using PDO.
+ */
 class BaseModel
 {
-    protected static $pdo;
+    protected static ?PDO $pdo = null;
 
     function __construct()
     {
@@ -23,9 +28,7 @@ class BaseModel
 
                 self::$pdo = new PDO($dsn, $user, $pass, $options);
             } catch (PDOException $e) {
-                error_log('Database connection failed: ' . $e->getMessage());
-
-                $_SESSION['error_message'] = 'Database connection failed.';
+                ErrorHandler::handleException($e);
             }
         }
     }
