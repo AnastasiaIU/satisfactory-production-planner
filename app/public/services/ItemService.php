@@ -303,7 +303,7 @@ class ItemService
                     }
 
                     if ($id && $display_name && $icon_name) {
-                        $this->itemModel->insertRecord($id, $display_name, $icon_name, $category, $display_order);
+                        $this->itemModel->insert($id, $display_name, $icon_name, $category, $display_order);
                     }
                 }
             }

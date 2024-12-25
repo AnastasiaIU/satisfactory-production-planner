@@ -58,7 +58,7 @@ class MachineService
             $icon_name = rtrim($icon_name, 'C') . '256.png';
 
             if ($id && $display_name) {
-                $this->machineModel->insertRecord($id, $display_name, $icon_name);
+                $this->machineModel->insert($id, $display_name, $icon_name);
             }
         }
     }

@@ -5,7 +5,7 @@ use utils\ErrorHandler;
 /**
  * Handles the database connection using PDO.
  */
-class BaseModel
+abstract class BaseModel
 {
     protected static ?PDO $pdo = null;
 
@@ -31,5 +31,17 @@ class BaseModel
                 ErrorHandler::handleException($e);
             }
         }
+    }
+
+    /**
+     * Checks if there are any records in the specified table.
+     *
+     * @param string $tableName The name of the table to check.
+     * @return bool True if there are records, false otherwise.
+     */
+    protected function hasAnyRecordsInTable(string $tableName): bool
+    {
+        $query = self::$pdo->query("SELECT * FROM `$tableName` LIMIT 1");
+        return $query->fetch() !== false;
     }
 }
