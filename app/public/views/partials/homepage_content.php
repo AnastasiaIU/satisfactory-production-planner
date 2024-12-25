@@ -1,6 +1,6 @@
 <main class="container-fluid d-flex flex-column flex-grow-1 p-0">
     <section class="row flex-grow-1 column-gap-3 gap-3 m-3 p-0">
-        <section class="col d-flex flex-column p-0">
+        <section class="col d-flex flex-column p-0 flex-grow-1 overflow-scroll">
             <section id="productionGraph" class="card d-flex flex-column flex-grow-1"></section>
         </section>
         <aside class="col-md-4 d-flex flex-column p-0">
@@ -16,7 +16,8 @@
                         <li>
                             <form class="px-3 py-2">
                                 <input type="text" class="form-control" id="dropdownSearch"
-                                       placeholder="Search items..." onkeyup="filterDropdown()">
+                                       placeholder="Search items..." onkeyup="filterDropdown()"
+                                       aria-label="Search items">
                             </form>
                         </li>
                         <li>
@@ -26,11 +27,13 @@
                     </ul>
                 </div>
                 <hr class="mb-2 mt-0">
-                <ul id="itemList" class="list-group flex-grow-1 overflow-auto border-0"></ul>
+                <ul id="itemList" class="list-group flex-grow-1 border-0"></ul>
             </section>
         </aside>
     </section>
 </main>
+<?php if (isset($items)): ?>
 <script>
     window.loadedItems = <?php echo json_encode($items, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP); ?>;
 </script>
+<?php endif; ?>

@@ -77,4 +77,20 @@ class RecipeModel extends BaseModel
         // Ensure an array is returned even if no results are found
         return $results ?: [];
     }
+
+    public function getRecipeInputs(string $recipeId): array
+    {
+        $query = self::$pdo->prepare(
+            'SELECT ri.recipe_id, ri.item_id, ri.amount, i.icon_name AS icon_name
+         FROM `RECIPE INPUT` AS ri
+         JOIN ITEM AS i ON ri.item_id = i.id
+         WHERE recipe_id = :recipeId'
+        );
+
+        $query->execute([':recipeId' => $recipeId]);
+        $results = $query->fetchAll(PDO::FETCH_ASSOC);
+
+        // Ensure an array is returned even if no results are found
+        return $results ?: [];
+    }
 }

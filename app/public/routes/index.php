@@ -57,3 +57,23 @@ Route::add('/getRecipeOutputs', function () {
         echo json_encode(["error" => "Recipe outputs not found"]);
     }
 });
+
+// API route for fetching recipe inputs
+Route::add('/getRecipeInputs', function () {
+    if (!isset($_GET['recipe_id'])) {
+        http_response_code(400); // Bad request if recipe_id is missing
+        echo json_encode(["error" => "Recipe ID is required"]);
+        exit;
+    }
+
+    $recipeController = new RecipeController();
+    $result = $recipeController->getRecipeInputs($_GET['recipe_id']);
+
+    if ($result) {
+        header('Content-Type: application/json');
+        echo json_encode($result);
+    } else {
+        http_response_code(404); // Not found if no recipe is found
+        echo json_encode(["error" => "Recipe inputs not found"]);
+    }
+});

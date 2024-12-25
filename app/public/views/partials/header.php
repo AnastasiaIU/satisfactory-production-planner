@@ -17,4 +17,3 @@
 </head>
 
 <body class="d-flex flex-column min-vh-100">
-<?php require(__DIR__ . '/header_nav.php');

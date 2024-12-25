@@ -35,4 +35,9 @@ class RecipeController
     {
         return $this->recipeModel->getRecipeOutputs($recipeId);
     }
+
+    public function getRecipeInputs(string $recipeId): array
+    {
+        return $this->recipeModel->getRecipeInputs($recipeId);
+    }
 }
