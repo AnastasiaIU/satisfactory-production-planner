@@ -3,7 +3,7 @@
 require_once(__DIR__ . '/BaseModel.php');
 
 /**
- * RecipeModel class extends BaseModel to interact with the RECIPE table in the database.
+ * RecipeModel class extends BaseModel to interact with the RECIPE entity in the database.
  */
 class RecipeModel extends BaseModel
 {

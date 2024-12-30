@@ -1,7 +1,5 @@
 <?php
 
-namespace utils;
-
 /**
  * Handles exceptions and errors by logging them and displaying a custom error page.
  */

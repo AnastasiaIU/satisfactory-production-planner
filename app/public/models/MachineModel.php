@@ -3,7 +3,7 @@
 require_once(__DIR__ . '/BaseModel.php');
 
 /**
- * MachineModel class extends BaseModel to interact with the MACHINE table in the database.
+ * MachineModel class extends BaseModel to interact with the MACHINE entity in the database.
  */
 class MachineModel extends BaseModel
 {

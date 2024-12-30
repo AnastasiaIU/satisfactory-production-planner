@@ -1,7 +1,5 @@
 <?php
 
-use utils\ErrorHandler;
-
 /**
  * Handles the database connection using PDO.
  */
@@ -41,7 +39,8 @@ abstract class BaseModel
      */
     protected function hasAnyRecordsInTable(string $tableName): bool
     {
-        $query = self::$pdo->query("SELECT * FROM `$tableName` LIMIT 1");
-        return $query->fetch() !== false;
+        $query = self::$pdo->query("SELECT IF(EXISTS(SELECT 1 FROM `$tableName`), 1, 0) AS result");
+        $result = $query->fetch();
+        return (bool)$result['result'];
     }
 }

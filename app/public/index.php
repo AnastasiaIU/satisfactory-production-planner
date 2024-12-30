@@ -10,7 +10,6 @@ require_once(__DIR__ . '/lib/error_reporting.php');
  * Enable the ErrorHandler class for using the error and exception handlers.
  */
 require_once(__DIR__ . '/utils/ErrorHandler.php');
-use utils\ErrorHandler;
 ErrorHandler::register();
 
 /**
