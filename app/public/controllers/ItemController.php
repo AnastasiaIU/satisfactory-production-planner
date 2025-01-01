@@ -28,19 +28,4 @@ class ItemController extends BaseController
     {
         return $this->itemModel->fetchAllProducible();
     }
-
-    public function getNativeClasses(): array
-    {
-        return $this->itemModel->getNativeClasses();
-    }
-
-    public function getEventItems(): array
-    {
-        return $this->itemModel->getEventItems();
-    }
-
-    public function getItemCategories(): array
-    {
-        return $this->itemModel->getItemCategories();
-    }
 }

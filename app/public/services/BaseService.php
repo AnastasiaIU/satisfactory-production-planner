@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * This class provides a base service with common functionality for other services.
+ */
 abstract class BaseService
 {
     /**

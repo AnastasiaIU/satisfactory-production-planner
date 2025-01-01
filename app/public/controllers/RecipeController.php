@@ -1,7 +1,7 @@
 <?php
 
 require_once(__DIR__ . '/BaseController.php');
-require_once(__DIR__ . '/../dto/RecipeDTO.php');
+require_once(__DIR__ . '/../models/RecipeModel.php');
 require_once(__DIR__ . '/../services/RecipeService.php');
 
 class RecipeController extends BaseController
@@ -14,15 +14,13 @@ class RecipeController extends BaseController
         $this->recipeModel = new RecipeModel();
         $this->recipeService = new RecipeService();
 
-        if ($this->recipeService->isTableEmpty('RECIPE')) {
+        if (!$this->recipeModel->recipeHasAnyRecords()) {
             $this->recipeService->loadRecipesFromJson($this::INITIAL_DATASET);
         }
-
-        if ($this->recipeService->isTableEmpty('RECIPE OUTPUT')) {
+        if (!$this->recipeModel->recipeOutputHasAnyRecords()) {
             $this->recipeService->loadRecipeOutputsFromJson($this::INITIAL_DATASET);
         }
-
-        if ($this->recipeService->isTableEmpty('RECIPE INPUT')) {
+        if (!$this->recipeModel->recipeInputHasAnyRecords()) {
             $this->recipeService->loadRecipeInputsFromJson($this::INITIAL_DATASET);
         }
     }

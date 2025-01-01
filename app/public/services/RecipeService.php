@@ -1,305 +1,215 @@
 <?php
 
+require_once(__DIR__ . '/BaseService.php');
 require_once(__DIR__ . '/../models/RecipeModel.php');
 
-class RecipeService
+/**
+ * This class provides services related to items, including loading items from a JSON file.
+ */
+class RecipeService extends BaseService
 {
+    private const NATIVE_CLASS = "/Script/CoreUObject.Class'/Script/FactoryGame.FGRecipe'";
     private RecipeModel $recipeModel;
-    private array $ficsmas = [
-        'Recipe_XmasBall1_C',
-        'Recipe_XmasBall2_C',
-        'Recipe_XmasBall3_C',
-        'Recipe_XmasBall4_C',
-        'Recipe_XmasBallCluster_C',
-        'Recipe_XmasBow_C',
-        'Recipe_XmasBranch_C',
-        'Recipe_XmasStar_C',
-        'Recipe_XmasWreath_C',
-        'Recipe_CandyCane_C',
-        'Recipe_Snow_C',
-        'Recipe_Snowball_C',
-        'Recipe_Fireworks_01_C',
-        'Recipe_Fireworks_02_C',
-        'Recipe_Fireworks_03_C'
-    ];
-
-    private array $resource_recipes = [
-        ['Recipe_IronOre_C', 'Build_MinerMk1_C', 'Iron Ore'],
-        ['Recipe_CopperOre_C', 'Build_MinerMk1_C', 'Copper Ore'],
-        ['Recipe_LimestoneOre_C', 'Build_MinerMk1_C', 'Limestone'],
-        ['Recipe_Coal_C', 'Build_MinerMk1_C', 'Coal'],
-        ['Recipe_Water_C', 'Build_WaterPump_C', 'Water'],
-        ['Recipe_LiquidOil_C', 'Build_OilPump_C', 'Crude Oil'],
-        ['Recipe_CateriumOre_C', 'Build_MinerMk1_C', 'Caterium Ore'],
-        ['Recipe_Bauxite_C', 'Build_MinerMk1_C', 'Bauxite'],
-        ['Recipe_RawQuartz_C', 'Build_MinerMk1_C', 'Raw Quartz'],
-        ['Recipe_Sulfur_C', 'Build_MinerMk1_C', 'Sulphur'],
-        ['Recipe_Uranium_C', 'Build_MinerMk1_C', 'Uranium'],
-        ['Recipe_NitrogenGas_C', 'Build_FrackingExtractor_C', 'Nitrogen Gas']
-    ];
-
-    private array $resource_recipe_outputs = [
-        ['Recipe_IronOre_C', 'Desc_OreIron_C', 120, 1],
-        ['Recipe_CopperOre_C', 'Desc_OreCopper_C', 120, 1],
-        ['Recipe_LimestoneOre_C', 'Desc_Stone_C', 120, 1],
-        ['Recipe_Coal_C', 'Desc_Coal_C', 120, 1],
-        ['Recipe_Water_C', 'Desc_Water_C', 120, 1],
-        ['Recipe_LiquidOil_C', 'Desc_LiquidOil_C', 120, 1],
-        ['Recipe_CateriumOre_C', 'Desc_OreGold_C', 120, 1],
-        ['Recipe_Bauxite_C', 'Desc_OreBauxite_C', 120, 1],
-        ['Recipe_RawQuartz_C', 'Desc_RawQuartz_C', 120, 1],
-        ['Recipe_Sulfur_C', 'Desc_Sulfur_C', 120, 1],
-        ['Recipe_Uranium_C', 'Desc_OreUranium_C', 120, 1],
-        ['Recipe_NitrogenGas_C', 'Desc_NitrogenGas_C', 60, 1]
-    ];
-
-    private array $alternative_recipes = array(
-        'Recipe_ResidualPlastic_C' => ['Desc_Plastic_C'],
-        'Recipe_AluminumScrap_C' => ['Desc_Water_C'],
-        'Recipe_Battery_C' => ['Desc_Water_C'],
-        'Recipe_NonFissileUranium_C' => ['Desc_Water_C'],
-        'Recipe_UnpackageWater_C' => ['Desc_Water_C', 'Desc_FluidCanister_C'],
-        'Recipe_Protein_Crab_C' => ['Desc_AlienProtein_C'],
-        'Recipe_Protein_Spitter_C' => ['Desc_AlienProtein_C'],
-        'Recipe_Protein_Stinger_C' => ['Desc_AlienProtein_C'],
-        'Recipe_PureAluminumIngot_C' => ['Desc_AluminumIngot_C'],
-        'Recipe_UnpackageAlumina_C' => ['Desc_AluminaSolution_C', 'Desc_FluidCanister_C'],
-        'Recipe_CartridgeChaos_Packaged_C' => ['Desc_CartridgeChaos_C'],
-        'Recipe_IonizedFuel_C' => ['Desc_CompactedCoal_C'],
-        'Recipe_RocketFuel_C' => ['Desc_CompactedCoal_C'],
-        'Recipe_PowerCrystalShard_2_C' => ['Desc_CrystalShard_C'],
-        'Recipe_PowerCrystalShard_3_C' => ['Desc_CrystalShard_C'],
-        'Recipe_SyntheticPowerShard_C' => ['Desc_CrystalShard_C', 'Desc_DarkEnergy_C'],
-        'Recipe_AlienPowerFuel_C' => ['Desc_DarkEnergy_C'],
-        'Recipe_FicsoniumFuelRod_C' => ['Desc_DarkEnergy_C'],
-        'Recipe_SpaceElevatorPart_12_C' => ['Desc_DarkEnergy_C'],
-        'Recipe_SuperpositionOscillator_C' => ['Desc_DarkEnergy_C'],
-        'Recipe_TemporalProcessor_C' => ['Desc_DarkEnergy_C'],
-        'Recipe_UnpackageBioFuel_C' => ['Desc_FluidCanister_C', 'Desc_LiquidBiofuel_C'],
-        'Recipe_UnpackageFuel_C' => ['Desc_FluidCanister_C', 'Desc_LiquidFuel_C'],
-        'Recipe_UnpackageOil_C' => ['Desc_FluidCanister_C', 'Desc_LiquidOil_C'],
-        'Recipe_UnpackageOilResidue_C' => ['Desc_FluidCanister_C', 'Desc_HeavyOilResidue_C'],
-        'Recipe_UnpackageSulfuricAcid_C' => ['Desc_FluidCanister_C', 'Desc_SulfuricAcid_C'],
-        'Recipe_UnpackageTurboFuel_C' => ['Desc_FluidCanister_C'],
-        'Recipe_UnpackageIonizedFuel_C' => ['Desc_GasTank_C', 'Desc_IonizedFuel_C'],
-        'Recipe_UnpackageNitricAcid_C' => ['Desc_GasTank_C', 'Desc_NitricAcid_C'],
-        'Recipe_UnpackageNitrogen_C' => ['Desc_GasTank_C', 'Desc_NitrogenGas_C'],
-        'Recipe_UnpackageRocketFuel_C' => ['Desc_GasTank_C', 'Desc_RocketFuel_C'],
-        'Recipe_Biomass_Leaves_C' => ['Desc_GenericBiomass_C'],
-        'Recipe_Biomass_Mycelia_C' => ['Desc_GenericBiomass_C'],
-        'Recipe_Biomass_Wood_C' => ['Desc_GenericBiomass_C'],
-        'Recipe_Rubber_C' => ['Desc_HeavyOilResidue_C'],
-        'Recipe_ResidualFuel_C' => ['Desc_LiquidFuel_C'],
-        'Recipe_ResidualRubber_C' => ['Desc_Rubber_C'],
-        'Recipe_AluminaSolution_C' => ['Desc_Silica_C'],
-        'Recipe_UraniumCell_C' => ['Desc_SulfuricAcid_C']
-    );
-
-    private array $standard_recipes = array(
-        'Recipe_Alternate_EnrichedCoal_C' => 'Desc_CompactedCoal_C',
-        'Recipe_DarkEnergy_C' => 'Desc_DarkEnergy_C'
-    );
 
     public function __construct()
     {
         $this->recipeModel = new RecipeModel();
     }
 
-    public function isTableEmpty(string $tableName): bool
-    {
-        return !$this->recipeModel->hasAnyRecords($tableName);
-    }
-
+    /**
+     * Loads recipes from a JSON file and inserts them into the database.
+     *
+     * @param string $jsonPath The path to the JSON file containing the recipes.
+     * @return void
+     */
     public function loadRecipesFromJson(string $jsonPath): void
     {
-        $jsonContent = file_get_contents($jsonPath);
-        $jsonContent = mb_convert_encoding($jsonContent, 'UTF-8', 'UTF-16LE');
-        $jsonContent = trim($jsonContent, "\xEF\xBB\xBF");
-        $data = json_decode($jsonContent, true);
+        $data = $this->getJsonContent($jsonPath);
 
         if ($data === null) {
             error_log('Error decoding JSON: ' . json_last_error_msg());
             return;
         }
 
-        foreach ($this->resource_recipes as $recipe) {
-            $this->recipeModel->insertRecipe($recipe[0], $recipe[1], $recipe[2]);
+        $resource_recipes = $this->recipeModel->getResourceRecipes();
+        $event_recipes = $this->recipeModel->getEventRecipes();
+
+        // Insert resource recipes into the database
+        foreach ($resource_recipes as $recipe) {
+            $this->recipeModel->insertRecipe($recipe['recipe_id'], $recipe['machine_id'], $recipe['display_name']);
         }
 
-        $filteredClasses = [];
-        foreach ($data as $item) {
-            if (isset($item['NativeClass']) && $item['NativeClass'] === "/Script/CoreUObject.Class'/Script/FactoryGame.FGRecipe'") {
-                $filteredClasses = $item['Classes'] ?? [];
-                break;
-            }
-        }
+        foreach ($data as $class) {
+            // Process only the related native class
+            if (isset($class['NativeClass']) && $class['NativeClass'] === $this::NATIVE_CLASS) {
+                foreach ($class['Classes'] as $item) {
+                    $recipe_id = $item['ClassName'];
 
-        foreach ($filteredClasses as $item) {
-            $id = $item['ClassName'] ?? null;
-            if (in_array($id, $this->ficsmas)) continue;
+                    // Skip items from the seasonal FICSMAS event
+                    if (in_array($recipe_id, $event_recipes)) continue;
 
-            $produced_in = $item['mProducedIn'] ?? null;
-            $matches = [];
-            preg_match_all('/Build_[^.]+_C/', $produced_in, $matches);
-            $filteredMachines = array_filter($matches[0], function ($machine) {
-                return stripos($machine, 'WorkBench') === false;
-            });
-            // Skip this recipe if no valid machines are found
-            if (empty($filteredMachines)) {
-                continue;
-            }
-            // Get the valid machine
-            $produced_in = array_values($filteredMachines)[0];
+                    $automated_machine = $this->filterAutomatedMachine($item['mProducedIn']);
 
-            $display_name = $item['mDisplayName'] ?? null;
+                    // Skip this recipe if no valid machines are found
+                    if ($automated_machine === null) continue;
 
-            if ($id && $produced_in && $display_name) {
-                // Insert the valid recipe into the database
-                $this->recipeModel->insertRecipe($id, $produced_in, $display_name);
+                    $display_name = $item['mDisplayName'];
+
+                    $this->recipeModel->insertRecipe($recipe_id, $automated_machine, $display_name);
+                }
             }
         }
     }
 
+    /**
+     * Loads recipe outputs from a JSON file and inserts them into the database.
+     *
+     * @param string $jsonPath The path to the JSON file containing the recipe outputs.
+     * @return void
+     */
     public function loadRecipeOutputsFromJson(string $jsonPath): void
     {
-        $jsonContent = file_get_contents($jsonPath);
-        $jsonContent = mb_convert_encoding($jsonContent, 'UTF-8', 'UTF-16LE');
-        $jsonContent = trim($jsonContent, "\xEF\xBB\xBF");
-        $data = json_decode($jsonContent, true);
+        $data = $this->getJsonContent($jsonPath);
 
         if ($data === null) {
             error_log('Error decoding JSON: ' . json_last_error_msg());
             return;
         }
 
-        foreach ($this->resource_recipe_outputs as $recipe_output) {
-            $this->recipeModel->insertRecipeOutput($recipe_output[0], $recipe_output[1], $recipe_output[2], $recipe_output[3]);
+        $resource_recipe_outputs = $this->recipeModel->getResourceRecipeOutputs();
+        $event_recipes = $this->recipeModel->getEventRecipes();
+
+        // Insert resource recipe outputs into the database
+        foreach ($resource_recipe_outputs as $recipe_output) {
+            $this->recipeModel->insertRecipeOutput(
+                $recipe_output['recipe_id'],
+                $recipe_output['standard_output'],
+                (int)$recipe_output['amount'],
+                (bool)$recipe_output['is_standard_recipe']);
         }
 
-        $filteredClasses = [];
-        foreach ($data as $item) {
-            if (isset($item['NativeClass']) && $item['NativeClass'] === "/Script/CoreUObject.Class'/Script/FactoryGame.FGRecipe'") {
-                $filteredClasses = $item['Classes'] ?? [];
-                break;
-            }
-        }
+        foreach ($data as $class) {
+            if (isset($class['NativeClass']) && $class['NativeClass'] === $this::NATIVE_CLASS) {
+                foreach ($class['Classes'] as $item) {
+                    $recipe_id = $item['ClassName'];
 
-        foreach ($filteredClasses as $item) {
-            $produced_in = $item['mProducedIn'] ?? null;
-            $matches = [];
-            preg_match_all('/Build_[^.]+_C/', $produced_in, $matches);
-            $filteredMachines = array_filter($matches[0], function ($machine) {
-                return stripos($machine, 'WorkBench') === false;
-            });
+                    // Skip items from the seasonal FICSMAS event
+                    if (in_array($recipe_id, $event_recipes)) continue;
 
-            // Skip this recipe if no valid machines are found
-            if (empty($filteredMachines)) {
-                continue;
-            }
+                    $automated_machine = $this->filterAutomatedMachine($item['mProducedIn']);
 
-            $recipe_id = $item['ClassName'] ?? null;
-            if (in_array($recipe_id, $this->ficsmas)) continue;
+                    // Skip this recipe if no valid machines are found
+                    if ($automated_machine === null) continue;
 
-            $products = $item['mProduct'] ?? null;
+                    preg_match_all('/\((.*?)\)/', $item['mProduct'], $productBlocks);
 
-            if ($recipe_id && $products) {
-                $productBlocks = [];
-                preg_match_all('/\((.*?)\)/', $products, $productBlocks);
+                    foreach ($productBlocks[0] as $product) {
+                        preg_match('/\(ItemClass="[^"]+(Desc_[^"]+_C)\'",Amount=(\d+)\)/', $product, $productPair);
 
-                if (empty($productBlocks[0])) {
-                    error_log("No valid product blocks found for Recipe ID $recipe_id.");
-                    continue;
-                }
+                        // Skip this product if no valid product pairs are found
+                        if (empty($productPair[0])) continue;
 
-                foreach ($productBlocks[0] as $product) {
-                    $productPair = [];
-                    preg_match('/\(ItemClass="[^"]+(Desc_[^"]+_C)\'",Amount=(\d+)\)/', $product, $productPair);
-
-                    if (!empty($productPair[0])) {
                         $item_id = $productPair[1];
                         $amount = (int)$productPair[2];
 
-                        $is_alternative = str_contains($recipe_id, 'Recipe_Alternate_');
-                        if ($filteredMachines[0] == 'Build_Converter_C') $is_alternative = true;
-
-                        if (array_key_exists($recipe_id, $this->alternative_recipes)) {
-                            if (in_array($item_id, $this->alternative_recipes[$recipe_id])) $is_alternative = true;
-                        }
-
-                        if (array_key_exists($recipe_id, $this->standard_recipes)) {
-                            if ($this->standard_recipes[$recipe_id] == $item_id) $is_alternative = false;
-                        }
+                        $is_alternative = $this->getIsAlternative($recipe_id, $automated_machine, $item_id);
 
                         $this->recipeModel->insertRecipeOutput($recipe_id, $item_id, $amount, !$is_alternative);
-                    } else {
-                        error_log("No valid product pairs found for Recipe ID $recipe_id: " . $product);
                     }
                 }
             }
         }
     }
 
+    /**
+     * Loads recipe inputs from a JSON file and inserts them into the database.
+     *
+     * @param string $jsonPath The path to the JSON file containing the recipe inputs.
+     * @return void
+     */
     public function loadRecipeInputsFromJson(string $jsonPath): void
     {
-        $jsonContent = file_get_contents($jsonPath);
-        $jsonContent = mb_convert_encoding($jsonContent, 'UTF-8', 'UTF-16LE');
-        $jsonContent = trim($jsonContent, "\xEF\xBB\xBF");
-        $data = json_decode($jsonContent, true);
+        $data = $this->getJsonContent($jsonPath);
 
         if ($data === null) {
             error_log('Error decoding JSON: ' . json_last_error_msg());
             return;
         }
 
-        $filteredClasses = [];
-        foreach ($data as $item) {
-            if (isset($item['NativeClass']) && $item['NativeClass'] === "/Script/CoreUObject.Class'/Script/FactoryGame.FGRecipe'") {
-                $filteredClasses = $item['Classes'] ?? [];
-                break;
-            }
-        }
+        $event_recipes = $this->recipeModel->getEventRecipes();
 
-        foreach ($filteredClasses as $item) {
-            $produced_in = $item['mProducedIn'] ?? null;
-            $matches = [];
-            preg_match_all('/Build_[^.]+_C/', $produced_in, $matches);
-            $filteredMachines = array_filter($matches[0], function ($machine) {
-                return stripos($machine, 'WorkBench') === false;
-            });
+        foreach ($data as $class) {
+            if (isset($class['NativeClass']) && $class['NativeClass'] === $this::NATIVE_CLASS) {
+                foreach ($class['Classes'] as $item) {
+                    $recipe_id = $item['ClassName'];
 
-            // Skip this recipe if no valid machines are found
-            if (empty($filteredMachines)) {
-                continue;
-            }
+                    // Skip items from the seasonal FICSMAS event
+                    if (in_array($recipe_id, $event_recipes)) continue;
 
-            $recipe_id = $item['ClassName'] ?? null;
-            if (in_array($recipe_id, $this->ficsmas)) continue;
+                    $automated_machine = $this->filterAutomatedMachine($item['mProducedIn']);
 
-            $ingredients = $item['mIngredients'] ?? null;
+                    // Skip this recipe if no valid machines are found
+                    if ($automated_machine === null) continue;
 
-            if ($recipe_id && $ingredients) {
-                $ingredientBlocks = [];
-                preg_match_all('/\((.*?)\)/', $ingredients, $ingredientBlocks);
+                    preg_match_all('/\((.*?)\)/', $item['mIngredients'], $ingredientBlocks);
 
-                if (empty($ingredientBlocks[0])) {
-                    error_log("No valid ingredient blocks found for Recipe ID $recipe_id.");
-                    continue;
-                }
+                    foreach ($ingredientBlocks[0] as $ingredient) {
+                        preg_match('/\(ItemClass="[^"]+(Desc_[^"]+_C)\'",Amount=(\d+)\)/', $ingredient, $ingredientPair);
 
-                foreach ($ingredientBlocks[0] as $ingredient) {
-                    $ingredientPair = [];
-                    preg_match('/\(ItemClass="[^"]+(Desc_[^"]+_C)\'",Amount=(\d+)\)/', $ingredient, $ingredientPair);
+                        // Skip this ingredient if no valid ingredient pairs are found
+                        if (empty($ingredientPair[0])) continue;
 
-                    if (!empty($ingredientPair[0])) {
                         $item_id = $ingredientPair[1];
                         $amount = (int)$ingredientPair[2];
 
                         $this->recipeModel->insertRecipeInput($recipe_id, $item_id, $amount);
-                    } else {
-                        error_log("No valid ingredient pairs found for Recipe ID $recipe_id: " . $ingredient);
                     }
                 }
             }
         }
+    }
+
+    /**
+     * Filters out non-automated machines from the given string of machines.
+     *
+     * @param string $machines The string containing machine identifiers.
+     * @return string|null The first automated machine identifier, or null if none found.
+     */
+    private function filterAutomatedMachine(string $machines): ?string
+    {
+        $automated_machines = [];
+        preg_match_all('/Build_[^.]+_C/', $machines, $automated_machines);
+        $filtered_machines = array_filter($automated_machines[0], function ($machine) {
+            return stripos($machine, 'WorkBench') === false;
+        });
+
+        return !empty($filtered_machines) ? $filtered_machines[0] : null;
+    }
+
+    /**
+     * Determines if a recipe is an alternative recipe.
+     *
+     * @param string $recipe_id The ID of the recipe.
+     * @param string $automated_machine The machine in which the recipe is produced.
+     * @param string $item_id The ID of the item produced by the recipe.
+     * @return bool True if the recipe is an alternative recipe, false otherwise.
+     */
+    private function getIsAlternative(string $recipe_id, string $automated_machine, string $item_id): bool
+    {
+        $alternative_recipe_outputs = $this->recipeModel->getAlternativeRecipeOutputs();
+        $standard_recipe_outputs = $this->recipeModel->getStandardRecipeOutputs();
+
+        $is_alternative = str_contains($recipe_id, 'Recipe_Alternate_');
+        if ($automated_machine == 'Build_Converter_C') $is_alternative = true;
+
+        if (array_key_exists($recipe_id, $alternative_recipe_outputs)) {
+            if (in_array($item_id, $alternative_recipe_outputs[$recipe_id])) $is_alternative = true;
+        }
+
+        if (array_key_exists($recipe_id, $standard_recipe_outputs)) {
+            if ($standard_recipe_outputs[$recipe_id] == $item_id) $is_alternative = false;
+        }
+
+        return $is_alternative;
     }
 }

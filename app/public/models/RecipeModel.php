@@ -12,9 +12,29 @@ class RecipeModel extends BaseModel
      *
      * @return bool True if there are records, false otherwise.
      */
-    public function hasAnyRecords(): bool
+    public function recipeHasAnyRecords(): bool
     {
         return $this->hasAnyRecordsInTable('RECIPE');
+    }
+
+    /**
+     * Checks if there are any records in the RECIPE OUTPUT table.
+     *
+     * @return bool True if there are records, false otherwise.
+     */
+    public function recipeOutputHasAnyRecords(): bool
+    {
+        return $this->hasAnyRecordsInTable('RECIPE OUTPUT');
+    }
+
+    /**
+     * Checks if there are any records in the RECIPE INPUT table.
+     *
+     * @return bool True if there are records, false otherwise.
+     */
+    public function recipeInputHasAnyRecords(): bool
+    {
+        return $this->hasAnyRecordsInTable('RECIPE INPUT');
     }
 
     /**
@@ -140,6 +160,114 @@ class RecipeModel extends BaseModel
         );
 
         $query->execute([':recipeId' => $recipeId]);
+        return $query->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    /**
+     * Retrieves all FICSMAS event recipes from the UTILITY RECIPE table.
+     *
+     * @return array An array of FICSMAS event recipes.
+     */
+    public function getEventRecipes(): array
+    {
+        $ficsmas = 'Ficsmas';
+        $query = self::$pdo->prepare(
+            'SELECT recipe_id
+                    FROM `UTILITY RECIPE`
+                    WHERE category = :ficsmas'
+        );
+
+        $query->execute([
+            ':ficsmas' => $ficsmas
+        ]);
+
+        $result = $query->fetchAll(PDO::FETCH_ASSOC);
+        return array_column($result, 'recipe_id');
+    }
+
+    /**
+     * Retrieves resource recipes from the UTILITY RECIPE table.
+     *
+     * @return array An associative array where each element contains the recipe ID, machine ID, and display name.
+     */
+    public function getResourceRecipes(): array
+    {
+        $resource_recipe = 'Resource Recipe';
+        $query = self::$pdo->prepare(
+            'SELECT recipe_id, machine_id, display_name
+                    FROM `UTILITY RECIPE`
+                    WHERE category = :resource_recipe'
+        );
+
+        $query->execute([
+            ':resource_recipe' => $resource_recipe
+        ]);
+
+        return $query->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    /**
+     * Retrieves resource recipe outputs from the UTILITY RECIPE table.
+     *
+     * @return array An associative array where each element contains the recipe ID, output amount,
+     * is the recipe standard, and the output item ID.
+     */
+    public function getResourceRecipeOutputs(): array
+    {
+        $resource_recipe = 'Resource Recipe Output';
+        $query = self::$pdo->prepare(
+            'SELECT recipe_id, amount, is_standard_recipe, standard_output
+                    FROM `UTILITY RECIPE`
+                    WHERE category = :resource_recipe'
+        );
+
+        $query->execute([
+            ':resource_recipe' => $resource_recipe
+        ]);
+
+        return $query->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    /**
+     * Retrieves alternative recipe outputs from the UTILITY RECIPE table.
+     *
+     * @return array An associative array where each element contains the recipe ID and
+     * first and second alternative outputs.
+     */
+    public function getAlternativeRecipeOutputs(): array
+    {
+        $resource_recipe = 'Alternative Recipe Output';
+        $query = self::$pdo->prepare(
+            'SELECT recipe_id, alternative_output_1, alternative_output_2
+                    FROM `UTILITY RECIPE`
+                    WHERE category = :resource_recipe'
+        );
+
+        $query->execute([
+            ':resource_recipe' => $resource_recipe
+        ]);
+
+        return $query->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    /**
+     * Retrieves standard recipe outputs from the UTILITY RECIPE table.
+     *
+     * @return array An associative array where each element contains the recipe ID and the standard output.
+     */
+    public function getStandardRecipeOutputs(): array
+    {
+        $resource_recipe = 'Standard Recipe Output';
+        $query = self::$pdo->prepare(
+            'SELECT recipe_id, standard_output
+                    FROM `UTILITY RECIPE`
+                    WHERE category = :resource_recipe'
+        );
+
+        $query->execute([
+            ':resource_recipe' => $resource_recipe
+        ]);
+
         return $query->fetchAll(PDO::FETCH_ASSOC);
     }
 }

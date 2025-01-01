@@ -3,6 +3,9 @@
 require_once(__DIR__ . '/BaseService.php');
 require_once(__DIR__ . '/../models/ItemModel.php');
 
+/**
+ * This class provides services related to recipes, including loading items from a JSON file.
+ */
 class ItemService extends BaseService
 {
     private ItemModel $itemModel;
@@ -12,6 +15,12 @@ class ItemService extends BaseService
         $this->itemModel = new ItemModel();
     }
 
+    /**
+     * Loads items from a JSON file and inserts them into the database.
+     *
+     * @param string $jsonPath The path to the JSON file.
+     * @return void
+     */
     public function loadItemsFromJson(string $jsonPath): void
     {
         $data = $this->getJsonContent($jsonPath);
@@ -26,7 +35,7 @@ class ItemService extends BaseService
         $item_categories = $this->itemModel->getItemCategories();
 
         foreach ($data as $class) {
-            // Process only appropriate native classes
+            // Process only related native classes
             if (isset($class['NativeClass']) && in_array($class['NativeClass'], $native_classes)) {
                 foreach ($class['Classes'] as $item) {
                     $id = $item['ClassName'];
@@ -45,6 +54,12 @@ class ItemService extends BaseService
         }
     }
 
+    /**
+     * Processes the icon name to generate a standardized icon file name.
+     *
+     * @param string $icon_name The original icon name.
+     * @return string The processed icon file name.
+     */
     private function processIconName(string $icon_name): string
     {
         $segments = explode('/', $icon_name);

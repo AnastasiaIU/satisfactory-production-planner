@@ -37,4 +37,26 @@ class MachineModel extends BaseModel
             ':icon_name' => $icon_name,
         ]);
     }
+
+    /**
+     * Retrieves all native classes from the UTILITY MACHINE table.
+     *
+     * @return array An array of native classes.
+     */
+    public function getNativeClasses(): array
+    {
+        $native_class = 'Native Class';
+        $query = self::$pdo->prepare(
+            'SELECT native_class
+                    FROM `UTILITY MACHINE`
+                    WHERE category = :native_class'
+        );
+
+        $query->execute([
+            ':native_class' => $native_class
+        ]);
+
+        $result = $query->fetchAll(PDO::FETCH_ASSOC);
+        return array_column($result, 'native_class');
+    }
 }

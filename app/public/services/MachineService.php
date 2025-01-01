@@ -1,8 +1,12 @@
 <?php
 
+require_once(__DIR__ . '/BaseService.php');
 require_once(__DIR__ . '/../models/MachineModel.php');
 
-class MachineService
+/**
+ * This class provides services related to machines, including loading machines from a JSON file.
+ */
+class MachineService extends BaseService
 {
     private MachineModel $machineModel;
 
@@ -12,54 +16,45 @@ class MachineService
     }
 
     /**
-     * Determines if the MACHINE table has no records.
+     * Loads machines from a JSON file and inserts them into the database.
      *
-     * @return bool True if the table is empty, otherwise false.
+     * @param string $jsonPath The path to the JSON file.
+     * @return void
      */
-    public function isTableEmpty(): bool
-    {
-        return !$this->machineModel->hasAnyRecords();
-    }
-
-    // Load machines from JSON file into the database
     public function loadMachinesFromJson(string $jsonPath): void
     {
-        // Read and decode the JSON file
-        $jsonContent = file_get_contents($jsonPath);
-        $jsonContent = mb_convert_encoding($jsonContent, 'UTF-8', 'UTF-16LE');
-        $jsonContent = trim($jsonContent, "\xEF\xBB\xBF");
-        $data = json_decode($jsonContent, true);
+        $data = $this->getJsonContent($jsonPath);
 
         if ($data === null) {
             error_log('Error decoding JSON: ' . json_last_error_msg());
             return;
         }
 
-        $validNativeClasses = [
-            "/Script/CoreUObject.Class'/Script/FactoryGame.FGBuildableManufacturer'",
-            "/Script/CoreUObject.Class'/Script/FactoryGame.FGBuildableManufacturerVariablePower'",
-            "/Script/CoreUObject.Class'/Script/FactoryGame.FGBuildableResourceExtractor'",
-            "/Script/CoreUObject.Class'/Script/FactoryGame.FGBuildableWaterPump'",
-            "/Script/CoreUObject.Class'/Script/FactoryGame.FGBuildableFrackingExtractor'"
-        ];
+        $native_classes = $this->machineModel->getNativeClasses();
 
-        $filteredClasses = [];
-        foreach ($data as $item) {
-            if (isset($item['NativeClass']) && in_array($item['NativeClass'], $validNativeClasses, true)) {
-                $filteredClasses = array_merge($filteredClasses, $item['Classes'] ?? []);
+        foreach ($data as $class) {
+            // Process only related native classes
+            if (isset($class['NativeClass']) && in_array($class['NativeClass'], $native_classes)) {
+                foreach ($class['Classes'] as $item) {
+                    $id = $item['ClassName'];
+                    $display_name = $item['mDisplayName'];
+                    $icon_name = $this->processIconName($id);
+
+                    $this->machineModel->insert($id, $display_name, $icon_name);
+                }
             }
         }
+    }
 
-        // Insert data into the database using the model
-        foreach ($filteredClasses as $item) {
-            $id = $item['ClassName'] ?? null;
-            $display_name = $item['mDisplayName'] ?? null;
-            $icon_name = str_replace('Build_', '', $id);
-            $icon_name = rtrim($icon_name, 'C') . '256.png';
-
-            if ($id && $display_name) {
-                $this->machineModel->insert($id, $display_name, $icon_name);
-            }
-        }
+    /**
+     * Processes the icon name to generate a standardized icon file name.
+     *
+     * @param string $id The original ID of the machine.
+     * @return string The processed icon file name.
+     */
+    private function processIconName(string $id): string
+    {
+        $segment = str_replace('Build_', '', $id);
+        return rtrim($segment, 'C') . '256.png';
     }
 }
