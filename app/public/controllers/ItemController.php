@@ -4,6 +4,9 @@ require_once(__DIR__ . '/BaseController.php');
 require_once(__DIR__ . '/../models/ItemModel.php');
 require_once(__DIR__ . '/../services/ItemService.php');
 
+/**
+ * Controller class for handling item-related operations.
+ */
 class ItemController extends BaseController
 {
     private ItemModel $itemModel;
@@ -17,13 +20,11 @@ class ItemController extends BaseController
         if (!$this->itemModel->hasAnyRecords()) $this->itemService->loadItemsFromJson($this::INITIAL_DATASET);
     }
 
-    public function insert(
-        string $id, string $display_name, string $icon_name, string $category, int $display_order
-    ): void
-    {
-        $this->itemModel->insert($id, $display_name, $icon_name, $category, $display_order);
-    }
-
+    /**
+     * Fetches all producible items from the database.
+     *
+     * @return array An array of producible items.
+     */
     public function fetchAllProducible(): array
     {
         return $this->itemModel->fetchAllProducible();

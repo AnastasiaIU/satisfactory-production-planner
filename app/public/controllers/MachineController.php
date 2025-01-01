@@ -4,6 +4,9 @@ require_once(__DIR__ . '/BaseController.php');
 require_once(__DIR__ . '/../models/MachineModel.php');
 require_once(__DIR__ . '/../services/MachineService.php');
 
+/**
+ * Controller class for handling machine-related operations.
+ */
 class MachineController extends BaseController
 {
     private MachineModel $machineModel;
