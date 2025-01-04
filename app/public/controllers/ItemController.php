@@ -16,8 +16,26 @@ class ItemController extends BaseController
     {
         $this->itemModel = new ItemModel();
         $this->itemService = new ItemService();
+    }
 
-        if (!$this->itemModel->hasAnyRecords()) $this->itemService->loadItemsFromJson($this::INITIAL_DATASET);
+    /**
+     * Checks if the items table is empty.
+     *
+     * @return bool True if the table is empty, false otherwise.
+     */
+    public function isTableEmpty(): bool
+    {
+        return $this->itemModel->hasAnyRecords();
+    }
+
+    /**
+     * Loads data from the JSON file to the database.
+     *
+     * @return void
+     */
+    public function loadItemsFromJson(): void
+    {
+        $this->itemService->loadItemsFromJson($this::INITIAL_DATASET);
     }
 
     /**
@@ -27,6 +45,7 @@ class ItemController extends BaseController
      */
     public function fetchAllProducible(): array
     {
-        return $this->itemModel->fetchAllProducible();
+        $dtos = $this->itemModel->fetchAllProducible();
+        return array_map(fn($dto) => $dto->toArray(), $dtos);
     }
 }

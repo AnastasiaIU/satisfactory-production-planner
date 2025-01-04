@@ -1,6 +1,7 @@
 <?php
 
 require_once(__DIR__ . '/BaseModel.php');
+require_once (__DIR__ . '/../dto/MachineDTO.php');
 
 /**
  * MachineModel class extends BaseModel to interact with the MACHINE entity in the database.
@@ -20,21 +21,19 @@ class MachineModel extends BaseModel
     /**
      * Inserts a new record into the MACHINE table.
      *
-     * @param string $id The ID of the machine.
-     * @param string $display_name The display name of the machine.
-     * @param string $icon_name The icon name of the machine.
+     * @param MachineDTO $machine The machine to insert.
      * @return void
      */
-    public function insert(string $id, string $display_name, string $icon_name): void
+    public function insert(MachineDTO $machine): void
     {
         $query = self::$pdo->prepare(
             'INSERT INTO MACHINE (id, display_name, icon_name) VALUES (:id, :display_name, :icon_name)'
         );
 
         $query->execute([
-            ':id' => $id,
-            ':display_name' => $display_name,
-            ':icon_name' => $icon_name,
+            ':id' => $machine->id,
+            ':display_name' => $machine->display_name,
+            ':icon_name' => $machine->icon_name,
         ]);
     }
 

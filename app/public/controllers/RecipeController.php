@@ -16,16 +16,66 @@ class RecipeController extends BaseController
     {
         $this->recipeModel = new RecipeModel();
         $this->recipeService = new RecipeService();
+    }
 
-        if (!$this->recipeModel->recipeHasAnyRecords()) {
-            $this->recipeService->loadRecipesFromJson($this::INITIAL_DATASET);
-        }
-        if (!$this->recipeModel->recipeOutputHasAnyRecords()) {
-            $this->recipeService->loadRecipeOutputsFromJson($this::INITIAL_DATASET);
-        }
-        if (!$this->recipeModel->recipeInputHasAnyRecords()) {
-            $this->recipeService->loadRecipeInputsFromJson($this::INITIAL_DATASET);
-        }
+    /**
+     * Checks if the recipes table is empty.
+     *s
+     * @return bool True if the table is empty, false otherwise.
+     */
+    public function isRecipeTableEmpty(): bool
+    {
+        return $this->recipeModel->recipeHasAnyRecords();
+    }
+
+    /**
+     * Checks if the recipe outputs table is empty.
+     *s
+     * @return bool True if the table is empty, false otherwise.
+     */
+    public function isRecipeOutputTableEmpty(): bool
+    {
+        return $this->recipeModel->recipeOutputHasAnyRecords();
+    }
+
+    /**
+     * Checks if the recipe inputs table is empty.
+     *s
+     * @return bool True if the table is empty, false otherwise.
+     */
+    public function isRecipeInputTableEmpty(): bool
+    {
+        return $this->recipeModel->recipeInputHasAnyRecords();
+    }
+
+    /**
+     * Loads recipe data from the JSON file to the database.
+     *
+     * @return void
+     */
+    public function loadRecipesFromJson(): void
+    {
+        $this->recipeService->loadRecipesFromJson($this::INITIAL_DATASET);
+    }
+
+    /**
+     * Loads recipe outputs data from the JSON file to the database.
+     *
+     * @return void
+     */
+    public function loadRecipeOutputsFromJson(): void
+    {
+        $this->recipeService->loadRecipeOutputsFromJson($this::INITIAL_DATASET);
+    }
+
+    /**
+     * Loads recipe inputs data from the JSON file to the database.
+     *
+     * @return void
+     */
+    public function loadRecipeInputsFromJson(): void
+    {
+        $this->recipeService->loadRecipeInputsFromJson($this::INITIAL_DATASET);
     }
 
     /**
@@ -36,7 +86,7 @@ class RecipeController extends BaseController
      */
     public function getRecipeDetails(string $itemId): array
     {
-        return $this->recipeModel->getRecipeDetails($itemId);
+        return $this->recipeModel->getRecipe($itemId);
     }
 
     /**

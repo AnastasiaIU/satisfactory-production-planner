@@ -5,7 +5,7 @@
         </section>
         <aside class="col-md-4 d-flex flex-column p-0">
             <section class="card d-flex flex-column flex-grow-1">
-                <div class="dropdown d-flex justify-content-between align-items-center p-2">
+                <div id="outputsDropdown" class="dropdown d-flex justify-content-between align-items-center p-2">
                     <p class="h5 m-0">Outputs</p>
                     <a id="addItemBtn" class="btn btn-secondary dropdown-toggle" href="#" role="button"
                        data-bs-toggle="dropdown"
@@ -27,13 +27,13 @@
                     </ul>
                 </div>
                 <hr class="mb-2 mt-0">
-                <ul id="itemList" class="list-group flex-grow-1 border-0"></ul>
+                <ul id="outputsList" class="list-group flex-grow-1 border-0"></ul>
             </section>
         </aside>
     </section>
 </main>
 <?php if (isset($items)): ?>
-<script>
-    window.loadedItems = <?php echo json_encode($items, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP); ?>;
-</script>
+    <script>
+        window.loadedItems = <?php echo json_encode($items, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP); ?>;
+    </script>
 <?php endif; ?>

@@ -1,6 +1,7 @@
 <?php
 
 require_once(__DIR__ . '/BaseModel.php');
+require_once (__DIR__ . '/../dto/ItemDTO.php');
 
 /**
  * ItemModel class extends BaseModel to interact with the ITEM entity in the database.
@@ -20,16 +21,10 @@ class ItemModel extends BaseModel
     /**
      * Inserts a new record into the ITEM table.
      *
-     * @param string $id The ID of the item.
-     * @param string $display_name The display name of the item.
-     * @param string $icon_name The icon name of the item.
-     * @param string $category The category of the item.
-     * @param int $display_order The display order of the item.
+     * @param ItemDTO $item The item to insert.
      * @return void
      */
-    public function insert(
-        string $id, string $display_name, string $icon_name, string $category, int $display_order
-    ): void
+    public function insert(ItemDTO $item): void
     {
         $query = self::$pdo->prepare(
             'INSERT INTO ITEM (id, display_name, icon_name, category, display_order) 
@@ -37,11 +32,11 @@ class ItemModel extends BaseModel
         );
 
         $query->execute([
-            ':id' => $id,
-            ':display_name' => $display_name,
-            ':icon_name' => $icon_name,
-            ':category' => $category,
-            ':display_order' => $display_order
+            ':id' => $item->id,
+            ':display_name' => $item->display_name,
+            ':icon_name' => $item->icon_name,
+            ':category' => $item->category,
+            ':display_order' => $item->display_order
         ]);
     }
 
@@ -60,7 +55,21 @@ class ItemModel extends BaseModel
                     ORDER BY category, display_order'
         );
 
-        return $query->fetchAll(PDO::FETCH_ASSOC);
+        $items = $query->fetchAll(PDO::FETCH_ASSOC);
+        $dtos = [];
+
+        foreach ($items as $item) {
+            $dto = new ItemDTO(
+                $item['id'],
+                $item['display_name'],
+                $item['icon_name'],
+                $item['category'],
+                $item['display_order']
+            );
+            $dtos[] = $dto;
+        }
+
+        return $dtos;
     }
 
     /**

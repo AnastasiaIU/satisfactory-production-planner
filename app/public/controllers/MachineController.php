@@ -16,7 +16,25 @@ class MachineController extends BaseController
     {
         $this->machineModel = new MachineModel();
         $this->machineService = new MachineService();
+    }
 
-        if (!$this->machineModel->hasAnyRecords()) $this->machineService->loadMachinesFromJson($this::INITIAL_DATASET);
+    /**
+     * Checks if the machines table is empty.
+     *
+     * @return bool True if the table is empty, false otherwise.
+     */
+    public function isTableEmpty(): bool
+    {
+        return $this->machineModel->hasAnyRecords();
+    }
+
+    /**
+     * Loads data from the JSON file to the database.
+     *
+     * @return void
+     */
+    public function loadMachinesFromJson(): void
+    {
+        $this->machineService->loadMachinesFromJson($this::INITIAL_DATASET);
     }
 }

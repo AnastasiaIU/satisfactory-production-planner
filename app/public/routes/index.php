@@ -9,14 +9,20 @@ Route::add('/', function () {
     $itemController = new ItemController();
     $machineController = new MachineController();
     $recipeController = new RecipeController();
-    $items = $itemController->fetchAllProducible();
+
+    // Load data from JSON if the tables are empty
+    if (!$itemController->isTableEmpty()) file_get_contents($_ENV['BASE_URL'] . '/loadItemsFromJson');
+    if (!$machineController->isTableEmpty()) file_get_contents($_ENV['BASE_URL'] . '/loadMachinesFromJson');
+    if (!$recipeController->isRecipeTableEmpty()) file_get_contents($_ENV['BASE_URL'] . '/loadRecipesFromJson');
+    if (!$recipeController->isRecipeOutputTableEmpty()) file_get_contents($_ENV['BASE_URL'] . '/loadRecipeOutputsFromJson');
+    if (!$recipeController->isRecipeInputTableEmpty()) file_get_contents($_ENV['BASE_URL'] . '/loadRecipeInputsFromJson');
+
     if (isset($_GET['item_id'])) {
         $result = $recipeController->getRecipeDetails($_GET['item_id']);
         header('Content-Type: application/json');
     }
     require(__DIR__ . '/../views/pages/index.php');
 });
-
 
 // API route for fetching recipe details
 Route::add('/getRecipeDetails', function () {

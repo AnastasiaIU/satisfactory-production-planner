@@ -1,6 +1,8 @@
 <?php
 
 require_once(__DIR__ . '/BaseModel.php');
+require_once (__DIR__ . '/../dto/RecipeDTO.php');
+require_once (__DIR__ . '/../dto/ItemDTO.php');
 
 /**
  * RecipeModel class extends BaseModel to interact with the RECIPE entity in the database.
@@ -40,34 +42,29 @@ class RecipeModel extends BaseModel
     /**
      * Inserts a new record into the RECIPE table.
      *
-     * @param string $id The ID of the recipe.
-     * @param string $produced_in The ID of the machine where the recipe is produced.
-     * @param string $display_name The display name of the recipe.
+     * @param RecipeDTO $recipe The recipe to insert.
      * @return void
      */
-    public function insertRecipe(string $id, string $produced_in, string $display_name): void
+    public function insertRecipe(RecipeDTO $recipe): void
     {
         $query = self::$pdo->prepare(
             'INSERT INTO RECIPE (id, produced_in, display_name) VALUES (:id, :produced_in, :display_name)'
         );
 
         $query->execute([
-            ':id' => $id,
-            ':produced_in' => $produced_in,
-            ':display_name' => $display_name
+            ':id' => $recipe->id,
+            ':produced_in' => $recipe->produced_in,
+            ':display_name' => $recipe->display_name
         ]);
     }
 
     /**
      * Inserts a new record into the RECIPE OUTPUT table.
      *
-     * @param string $recipe_id The ID of the recipe.
-     * @param string $item_id The ID of the item.
-     * @param int $amount The amount of the item.
-     * @param bool $is_standard_recipe Indicates if it is a standard recipe.
+     * @param RecipeOutputDTO $recipe_output The recipe output to insert.
      * @return void
      */
-    public function insertRecipeOutput(string $recipe_id, string $item_id, int $amount, bool $is_standard_recipe): void
+    public function insertRecipeOutput(RecipeOutputDTO $recipe_output): void
     {
         $query = self::$pdo->prepare(
             'INSERT INTO `RECIPE OUTPUT` (recipe_id, item_id, amount, is_standard_recipe) 
@@ -75,92 +72,124 @@ class RecipeModel extends BaseModel
         );
 
         $query->execute([
-            ':recipe_id' => $recipe_id,
-            ':item_id' => $item_id,
-            ':amount' => $amount,
-            ':is_standard_recipe' => (int)$is_standard_recipe
+            ':recipe_id' => $recipe_output->recipe_id,
+            ':item_id' => $recipe_output->item_id,
+            ':amount' => $recipe_output->amount,
+            ':is_standard_recipe' => (int)$recipe_output->is_standard_recipe
         ]);
     }
 
     /**
      * Inserts a new record into the RECIPE INPUT table.
      *
-     * @param string $recipe_id The ID of the recipe.
-     * @param string $item_id The ID of the item.
-     * @param int $amount The amount of the item.
+     * @param RecipeInputDTO $recipe_input The recipe input to insert.
      * @return void
      */
-    public function insertRecipeInput(string $recipe_id, string $item_id, int $amount): void
+    public function insertRecipeInput(RecipeInputDTO $recipe_input): void
     {
         $query = self::$pdo->prepare(
             'INSERT INTO `RECIPE INPUT` (recipe_id, item_id, amount) VALUES (:recipe_id, :item_id, :amount)'
         );
 
         $query->execute([
-            ':recipe_id' => $recipe_id,
-            ':item_id' => $item_id,
-            ':amount' => $amount
+            ':recipe_id' => $recipe_input->recipe_id,
+            ':item_id' => $recipe_input->item_id,
+            ':amount' => $recipe_input->amount
         ]);
     }
 
     /**
-     * Retrieves the details of a standard recipe for the given item ID.
+     * Retrieves the standard recipe for the given item ID.
      *
-     * @param string $itemId The ID of the item.
-     * @return array The details of the recipe, including recipe ID, machine icon, item icon, and display name.
+     * @param ItemDTO $item The item to retrieve the recipe for.
+     * @return RecipeDTO The standard recipe for the item.
      */
-    public function getRecipeDetails(string $itemId): array
+    public function getRecipeForItem(ItemDTO $item): RecipeDTO
     {
         $query = self::$pdo->prepare(
-            'SELECT r.id AS recipe_id, r.produced_in, m.icon_name AS machine_icon, i.icon_name AS item_icon, i.display_name 
+            'SELECT ro.item_id, r.id AS recipe_id, r.produced_in, r.display_name 
                     FROM `RECIPE OUTPUT` ro
                     JOIN RECIPE r ON ro.recipe_id = r.id
-                    JOIN MACHINE m ON r.produced_in = m.id
-                    JOIN ITEM i ON ro.item_id = i.id
-                    WHERE i.id = :itemId AND ro.is_standard_recipe = 1'
+                    WHERE ro.item_id = :itemId AND ro.is_standard_recipe = 1'
         );
 
-        $query->execute([':itemId' => $itemId]);
-        return $query->fetch(PDO::FETCH_ASSOC);
+        $query->execute([':itemId' => $item->id]);
+        $recipe = $query->fetch(PDO::FETCH_ASSOC);
+        $recipe_outputs = $this->getRecipeOutputs($recipe['item_id']);
+        $recipe_inputs = $this->getRecipeInputs($recipe['item_id']);
+
+        $dto = new RecipeDTO(
+            $recipe['recipe_id'],
+            $recipe['produced_in'],
+            $recipe['display_name'],
+            $recipe_outputs,
+            $recipe_inputs
+        );
+
+        return $dto;
     }
 
     /**
      * Retrieves the outputs of a recipe based on the given recipe ID.
      *
-     * @param string $recipeId The ID of the recipe.
-     * @return array The outputs of the recipe, including recipe ID, item ID, amount,
-     *               whether it is a standard recipe, and the item icon name.
+     * @param RecipeDTO $recipe The recipe to retrieve the outputs for.
+     * @return array An array with recipe output objects.
      */
-    public function getRecipeOutputs(string $recipeId): array
+    public function getRecipeOutputs(RecipeDTO $recipe): array
     {
         $query = self::$pdo->prepare(
-            'SELECT ro.recipe_id, ro.item_id, ro.amount, ro.is_standard_recipe, i.icon_name
-                    FROM `RECIPE OUTPUT` AS ro
-                    JOIN ITEM AS i ON ro.item_id = i.id
+            'SELECT recipe_id, item_id, amount, is_standard_recipe
+                    FROM `RECIPE OUTPUT`
                     WHERE recipe_id = :recipeId'
         );
 
-        $query->execute([':recipeId' => $recipeId]);
-        return $query->fetchAll(PDO::FETCH_ASSOC);
+        $query->execute([':recipeId' => $recipe->id]);
+        $recipe_outputs = $query->fetchAll(PDO::FETCH_ASSOC);
+
+        $dtos = [];
+
+        foreach ($recipe_outputs as $recipe_output) {
+            $dto = new RecipeOutputDTO(
+                $recipe_output['recipe_id'],
+                $recipe_output['item_id'],
+                $recipe_output['amount'],
+                $recipe_output['is_standard_recipe']
+            );
+            $dtos[] = $dto;
+        }
+
+        return $dtos;
     }
 
     /**
      * Retrieves the inputs of a recipe based on the given recipe ID.
      *
-     * @param string $recipeId The ID of the recipe.
-     * @return array The inputs of the recipe, including recipe ID, item ID, amount, and the item icon name.
+     * @param RecipeDTO $recipe The recipe to retrieve the inputs for.
+     * @return array An array with recipe input objects.
      */
-    public function getRecipeInputs(string $recipeId): array
+    public function getRecipeInputs(RecipeDTO $recipe): array
     {
         $query = self::$pdo->prepare(
-            'SELECT ri.recipe_id, ri.item_id, ri.amount, i.icon_name AS icon_name
-                    FROM `RECIPE INPUT` AS ri
-                    JOIN ITEM AS i ON ri.item_id = i.id
+            'SELECT recipe_id, amount, amount
+                    FROM `RECIPE INPUT`
                     WHERE recipe_id = :recipeId'
         );
 
-        $query->execute([':recipeId' => $recipeId]);
-        return $query->fetchAll(PDO::FETCH_ASSOC);
+        $query->execute([':recipeId' => $recipe->id]);
+        $recipe_inputs = $query->fetchAll(PDO::FETCH_ASSOC);
+
+        $dtos = [];
+
+        foreach ($recipe_inputs as $recipe_input) {
+            $dto = new RecipeInputDTO(
+                $recipe_input['recipe_id'],
+                $recipe_input['item_id'],
+                $recipe_input['amount']
+            );
+            $dtos[] = $dto;
+        }
+
+        return $dtos;
     }
 
     /**
