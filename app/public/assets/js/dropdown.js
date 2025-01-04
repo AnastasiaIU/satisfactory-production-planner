@@ -1,20 +1,5 @@
 let isDropdownLoaded = false;
 
-const categoryOrder = [
-    "Raw Resources",
-    "Tier 0",
-    "Tier 2",
-    "Tier 3",
-    "Tier 4",
-    "Tier 5",
-    "Tier 6",
-    "Tier 7",
-    "Tier 8",
-    "Tier 9",
-    "MAM",
-    "Equipment"
-];
-
 /**
  * Sets up an event listener to clear the search input and reset the dropdown items when the dropdown is closed.
  */
@@ -206,6 +191,40 @@ function addOnClickEventToDropdownItems(dropdownItemsContainer) {
     });
 }
 
+/**
+ * Adds a category header element to the dropdown items container.
+ *
+ * @param {string} category - The name of the category to be added as a header.
+ * @param {HTMLElement} dropdownItemsContainer - The container element for the dropdown items.
+ */
+function addCategoryHeader(category, dropdownItemsContainer) {
+    const header = document.createElement("h6");
+    header.className = "dropdown-header";
+    header.textContent = category;
+    dropdownItemsContainer.appendChild(header);
+}
+
+/**
+ * Creates a dropdown item element and appends it to the dropdown items container.
+ *
+ * @param {Object} item - The item object containing details for the dropdown item.
+ * @param {HTMLElement} dropdownItemsContainer - The container element for the dropdown items.
+ */
+function createDropdownItem(item, dropdownItemsContainer) {
+    const li = document.createElement("li");
+    li.innerHTML = `
+                    <a class="dropdown-item" href="#" data-item-id="${item.id}">
+                        <img src="/assets/images/${item.icon_name}" alt="icon"
+                             style="width: 50px; height: 50px; margin-right: 10px;">
+                        ${item.display_name}
+                    </a>`;
+    dropdownItemsContainer.appendChild(li);
+}
+
+/**
+ * Adds an event listener to the "Add Item" button to fetch and display producible items in the dropdown.
+ * Groups and sorts the items by category and display order.
+ */
 function addOnClickToAddItemBtn() {
     const addItemBtn = document.getElementById("addItemBtn");
     const dropdownItemsContainer = document.getElementById("dropdownItems");
@@ -227,20 +246,10 @@ function addOnClickToAddItemBtn() {
         const groupedItems = groupAndSortItems(items);
 
         for (const [category, items] of Object.entries(groupedItems)) {
-            const header = document.createElement("h6");
-            header.className = "dropdown-header";
-            header.textContent = category;
-            dropdownItemsContainer.appendChild(header);
+            addCategoryHeader(category, dropdownItemsContainer);
 
             items.forEach((item) => {
-                const li = document.createElement("li");
-                li.innerHTML = `
-                    <a class="dropdown-item" href="#" data-item-id="${item.id}">
-                        <img src="/assets/images/${item.icon_name}" alt="icon"
-                             style="width: 50px; height: 50px; margin-right: 10px;">
-                        ${item.display_name}
-                    </a>`;
-                dropdownItemsContainer.appendChild(li);
+                createDropdownItem(item, dropdownItemsContainer);
             });
         }
 
@@ -248,13 +257,18 @@ function addOnClickToAddItemBtn() {
     });
 }
 
-/** 4. Helper Function: Group and Sort Items **/
+/**
+ * Groups and sorts items by category and display order.
+ *
+ * @param {Object[]} items - The array of items to be grouped and sorted.
+ * @returns {Object} An object where keys are category names and values are arrays of items sorted by display order.
+ */
 function groupAndSortItems(items) {
     const groupedItems = {};
 
     // Group items by category
     items.forEach((item) => {
-        const category = item.category || "Uncategorized"; // Default category if missing
+        const category = item.category || "Uncategorized";
         if (!groupedItems[category]) groupedItems[category] = [];
         groupedItems[category].push(item);
     });
