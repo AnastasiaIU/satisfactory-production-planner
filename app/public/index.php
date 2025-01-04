@@ -28,6 +28,7 @@ require_once(__DIR__ . '/lib/Route.php');
 require_once(__DIR__ . '/routes/index.php');
 require_once(__DIR__ . '/routes/load_from_json.php');
 require_once(__DIR__ . '/routes/item.php');
+require_once(__DIR__ . '/routes/recipe.php');
 
 // run router
 Route::run();

@@ -3,7 +3,7 @@
 /**
  * Data Transfer Object (DTO) for representing a machine.
  */
-class MachineDTO
+class MachineDTO implements JsonSerializable
 {
     public readonly string $id;
     public readonly string $display_name;
@@ -16,12 +16,7 @@ class MachineDTO
         $this->icon_name = $icon_name;
     }
 
-    /**
-     * Converts the object to an associative array.
-     *
-     * @return array
-     */
-    public function toArray(): array
+    public function jsonSerialize(): array
     {
         return [
             'id' => $this->id,

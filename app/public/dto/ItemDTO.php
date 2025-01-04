@@ -3,7 +3,7 @@
 /**
  * Data Transfer Object (DTO) for representing an item.
  */
-class ItemDTO
+class ItemDTO implements JsonSerializable
 {
     public readonly string $id;
     public readonly string $display_name;
@@ -20,12 +20,7 @@ class ItemDTO
         $this->display_order = $display_order;
     }
 
-    /**
-     * Converts the object to an associative array.
-     *
-     * @return array
-     */
-    public function toArray(): array
+    public function jsonSerialize(): array
     {
         return [
             'id' => $this->id,

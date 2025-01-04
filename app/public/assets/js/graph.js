@@ -42,7 +42,6 @@ function appendOutput(output, outputsColumn) {
 }
 
 function displayProductionGraph(itemId, graphRow = null) {
-    console.log("Fetching recipe for item:", itemId);
 
     fetch(`/getRecipeDetails?item_id=${itemId}`)
         .then((response) => {

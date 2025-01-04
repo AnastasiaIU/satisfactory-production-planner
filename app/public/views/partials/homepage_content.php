@@ -32,8 +32,3 @@
         </aside>
     </section>
 </main>
-<?php if (isset($items)): ?>
-    <script>
-        window.loadedItems = <?php echo json_encode($items, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP); ?>;
-    </script>
-<?php endif; ?>

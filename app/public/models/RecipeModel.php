@@ -101,10 +101,10 @@ class RecipeModel extends BaseModel
     /**
      * Retrieves the standard recipe for the given item ID.
      *
-     * @param ItemDTO $item The item to retrieve the recipe for.
+     * @param string $itemId The ID of the item.
      * @return RecipeDTO The standard recipe for the item.
      */
-    public function getRecipeForItem(ItemDTO $item): RecipeDTO
+    public function getRecipeForItem(string $itemId): RecipeDTO
     {
         $query = self::$pdo->prepare(
             'SELECT ro.item_id, r.id AS recipe_id, r.produced_in, r.display_name 
@@ -113,20 +113,18 @@ class RecipeModel extends BaseModel
                     WHERE ro.item_id = :itemId AND ro.is_standard_recipe = 1'
         );
 
-        $query->execute([':itemId' => $item->id]);
+        $query->execute([':itemId' => $itemId]);
         $recipe = $query->fetch(PDO::FETCH_ASSOC);
-        $recipe_outputs = $this->getRecipeOutputs($recipe['item_id']);
-        $recipe_inputs = $this->getRecipeInputs($recipe['item_id']);
+        $recipe_outputs = $this->getRecipeOutputs($recipe[$itemId]);
+        $recipe_inputs = $this->getRecipeInputs($recipe[$itemId]);
 
-        $dto = new RecipeDTO(
+        return new RecipeDTO(
             $recipe['recipe_id'],
             $recipe['produced_in'],
             $recipe['display_name'],
             $recipe_outputs,
             $recipe_inputs
         );
-
-        return $dto;
     }
 
     /**

@@ -45,7 +45,6 @@ class ItemController extends BaseController
      */
     public function fetchAllProducible(): array
     {
-        $dtos = $this->itemModel->fetchAllProducible();
-        return array_map(fn($dto) => $dto->toArray(), $dtos);
+        return $this->itemModel->fetchAllProducible();
     }
 }

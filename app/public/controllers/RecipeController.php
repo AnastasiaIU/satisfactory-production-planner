@@ -79,14 +79,14 @@ class RecipeController extends BaseController
     }
 
     /**
-     * Retrieves the details of a standard recipe for the given item ID.
+     * Retrieves the standard recipe for the given item ID.
      *
      * @param string $itemId The ID of the item.
-     * @return array The details of the recipe, including recipe ID, machine icon, item icon, and display name.
+     * @return RecipeDTO The recipe for the item.
      */
-    public function getRecipeDetails(string $itemId): array
+    public function getRecipeForItem(string $itemId): RecipeDTO
     {
-        return $this->recipeModel->getRecipe($itemId);
+        return $this->recipeModel->getRecipeForItem($itemId);
     }
 
     /**
