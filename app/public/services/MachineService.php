@@ -1,18 +1,18 @@
 <?php
 
 require_once(__DIR__ . '/BaseService.php');
-require_once(__DIR__ . '/../models/MachineModel.php');
+require_once(__DIR__ . '/../models/UtilityMachineModel.php');
 
 /**
  * This class provides services related to machines, including loading machines from a JSON file.
  */
 class MachineService extends BaseService
 {
-    private MachineModel $machineModel;
+    private UtilityMachineModel $utilityMachineModel;
 
     public function __construct()
     {
-        $this->machineModel = new MachineModel();
+        $this->utilityMachineModel = new UtilityMachineModel();
     }
 
     /**
@@ -30,7 +30,7 @@ class MachineService extends BaseService
             return;
         }
 
-        $native_classes = $this->machineModel->getNativeClasses();
+        $native_classes = $this->utilityMachineModel->getNativeClasses();
 
         foreach ($data as $class) {
             // Process only related native classes
@@ -40,7 +40,7 @@ class MachineService extends BaseService
                     $display_name = $item['mDisplayName'];
                     $icon_name = $this->processIconName($id);
 
-                    $this->machineModel->insert($id, $display_name, $icon_name);
+                    $this->utilityMachineModel->insert($id, $display_name, $icon_name);
                 }
             }
         }

@@ -36,10 +36,10 @@ class RecipeOutputDTO implements JsonSerializable
 {
     public readonly string $recipe_id;
     public readonly string $item_id;
-    public readonly int $amount;
+    public readonly float $amount;
     public readonly bool $is_standard_recipe;
 
-    public function __construct(string $recipe_id, string $item_id, int $amount, bool $is_standard_recipe)
+    public function __construct(string $recipe_id, string $item_id, float $amount, bool $is_standard_recipe)
     {
         $this->recipe_id = $recipe_id;
         $this->item_id = $item_id;
@@ -62,9 +62,9 @@ class RecipeInputDTO implements JsonSerializable
 {
     public readonly string $recipe_id;
     public readonly string $item_id;
-    public readonly int $amount;
+    public readonly float $amount;
 
-    public function __construct(string $recipe_id, string $item_id, int $amount)
+    public function __construct(string $recipe_id, string $item_id, float $amount)
     {
         $this->recipe_id = $recipe_id;
         $this->item_id = $item_id;

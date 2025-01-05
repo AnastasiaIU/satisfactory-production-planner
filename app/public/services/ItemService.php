@@ -1,18 +1,18 @@
 <?php
 
 require_once(__DIR__ . '/BaseService.php');
-require_once(__DIR__ . '/../models/ItemModel.php');
+require_once(__DIR__ . '/../models/UtilityItemModel.php');
 
 /**
  * This class provides services related to recipes, including loading items from a JSON file.
  */
 class ItemService extends BaseService
 {
-    private ItemModel $itemModel;
+    private UtilityItemModel $utilityItemModel;
 
     public function __construct()
     {
-        $this->itemModel = new ItemModel();
+        $this->utilityItemModel = new UtilityItemModel();
     }
 
     /**
@@ -30,9 +30,9 @@ class ItemService extends BaseService
             return;
         }
 
-        $native_classes = $this->itemModel->getNativeClasses();
-        $event_items = $this->itemModel->getEventItems();
-        $item_categories = $this->itemModel->getItemCategories();
+        $native_classes = $this->utilityItemModel->getNativeClasses();
+        $event_items = $this->utilityItemModel->getEventItems();
+        $item_categories = $this->utilityItemModel->getItemCategories();
 
         foreach ($data as $class) {
             // Process only related native classes
@@ -48,7 +48,7 @@ class ItemService extends BaseService
                     $category = array_key_exists($id, $item_categories) ? $item_categories[$id][0] : 'Uncategorized';
                     $display_order = array_key_exists($id, $item_categories) ? (int)$item_categories[$id][1] : -1;
 
-                    $this->itemModel->insert($id, $display_name, $icon_name, $category, $display_order);
+                    $this->utilityItemModel->insert($id, $display_name, $icon_name, $category, $display_order);
                 }
             }
         }

@@ -1,7 +1,7 @@
 <?php
 
 require_once(__DIR__ . '/BaseService.php');
-require_once(__DIR__ . '/../models/RecipeModel.php');
+require_once(__DIR__ . '/../models/UtilityRecipeModel.php');
 
 /**
  * This class provides services related to items, including loading items from a JSON file.
@@ -9,11 +9,11 @@ require_once(__DIR__ . '/../models/RecipeModel.php');
 class RecipeService extends BaseService
 {
     private const NATIVE_CLASS = "/Script/CoreUObject.Class'/Script/FactoryGame.FGRecipe'";
-    private RecipeModel $recipeModel;
+    private UtilityRecipeModel $utilityRecipeModel;
 
     public function __construct()
     {
-        $this->recipeModel = new RecipeModel();
+        $this->utilityRecipeModel = new UtilityRecipeModel();
     }
 
     /**
@@ -31,12 +31,12 @@ class RecipeService extends BaseService
             return;
         }
 
-        $resource_recipes = $this->recipeModel->getResourceRecipes();
-        $event_recipes = $this->recipeModel->getEventRecipes();
+        $resource_recipes = $this->utilityRecipeModel->getResourceRecipes();
+        $event_recipes = $this->utilityRecipeModel->getEventRecipes();
 
         // Insert resource recipes into the database
         foreach ($resource_recipes as $recipe) {
-            $this->recipeModel->insertRecipe($recipe['recipe_id'], $recipe['machine_id'], $recipe['display_name']);
+            $this->utilityRecipeModel->insertRecipe($recipe['recipe_id'], $recipe['machine_id'], $recipe['display_name']);
         }
 
         foreach ($data as $class) {
@@ -55,7 +55,7 @@ class RecipeService extends BaseService
 
                     $display_name = $item['mDisplayName'];
 
-                    $this->recipeModel->insertRecipe($recipe_id, $automated_machine, $display_name);
+                    $this->utilityRecipeModel->insertRecipe($recipe_id, $automated_machine, $display_name);
                 }
             }
         }
@@ -76,15 +76,15 @@ class RecipeService extends BaseService
             return;
         }
 
-        $resource_recipe_outputs = $this->recipeModel->getResourceRecipeOutputs();
-        $event_recipes = $this->recipeModel->getEventRecipes();
+        $resource_recipe_outputs = $this->utilityRecipeModel->getResourceRecipeOutputs();
+        $event_recipes = $this->utilityRecipeModel->getEventRecipes();
 
         // Insert resource recipe outputs into the database
         foreach ($resource_recipe_outputs as $recipe_output) {
-            $this->recipeModel->insertRecipeOutput(
+            $this->utilityRecipeModel->insertRecipeOutput(
                 $recipe_output['recipe_id'],
                 $recipe_output['standard_output'],
-                (int)$recipe_output['amount'],
+                (float)$recipe_output['amount'],
                 (bool)$recipe_output['is_standard_recipe']);
         }
 
@@ -110,11 +110,11 @@ class RecipeService extends BaseService
                         if (empty($productPair[0])) continue;
 
                         $item_id = $productPair[1];
-                        $amount = (int)$productPair[2];
+                        $amount = (float)$productPair[2];
 
                         $is_alternative = $this->getIsAlternative($recipe_id, $automated_machine, $item_id);
 
-                        $this->recipeModel->insertRecipeOutput($recipe_id, $item_id, $amount, !$is_alternative);
+                        $this->utilityRecipeModel->insertRecipeOutput($recipe_id, $item_id, $amount, !$is_alternative);
                     }
                 }
             }
@@ -136,7 +136,7 @@ class RecipeService extends BaseService
             return;
         }
 
-        $event_recipes = $this->recipeModel->getEventRecipes();
+        $event_recipes = $this->utilityRecipeModel->getEventRecipes();
 
         foreach ($data as $class) {
             if (isset($class['NativeClass']) && $class['NativeClass'] === $this::NATIVE_CLASS) {
@@ -160,9 +160,9 @@ class RecipeService extends BaseService
                         if (empty($ingredientPair[0])) continue;
 
                         $item_id = $ingredientPair[1];
-                        $amount = (int)$ingredientPair[2];
+                        $amount = (float)$ingredientPair[2];
 
-                        $this->recipeModel->insertRecipeInput($recipe_id, $item_id, $amount);
+                        $this->utilityRecipeModel->insertRecipeInput($recipe_id, $item_id, $amount);
                     }
                 }
             }
@@ -196,8 +196,8 @@ class RecipeService extends BaseService
      */
     private function getIsAlternative(string $recipe_id, string $automated_machine, string $item_id): bool
     {
-        $alternative_recipe_outputs = $this->recipeModel->getAlternativeRecipeOutputs();
-        $standard_recipe_outputs = $this->recipeModel->getStandardRecipeOutputs();
+        $alternative_recipe_outputs = $this->utilityRecipeModel->getAlternativeRecipeOutputs();
+        $standard_recipe_outputs = $this->utilityRecipeModel->getStandardRecipeOutputs();
 
         $is_alternative = str_contains($recipe_id, 'Recipe_Alternate_');
         if ($automated_machine == 'Build_Converter_C') $is_alternative = true;
