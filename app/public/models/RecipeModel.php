@@ -115,8 +115,8 @@ class RecipeModel extends BaseModel
 
         $query->execute([':itemId' => $itemId]);
         $recipe = $query->fetch(PDO::FETCH_ASSOC);
-        $recipe_outputs = $this->getRecipeOutputs($recipe[$itemId]);
-        $recipe_inputs = $this->getRecipeInputs($recipe[$itemId]);
+        $recipe_outputs = $this->getRecipeOutputs($recipe['recipe_id']);
+        $recipe_inputs = $this->getRecipeInputs($recipe['recipe_id']);
 
         return new RecipeDTO(
             $recipe['recipe_id'],
@@ -130,10 +130,10 @@ class RecipeModel extends BaseModel
     /**
      * Retrieves the outputs of a recipe based on the given recipe ID.
      *
-     * @param RecipeDTO $recipe The recipe to retrieve the outputs for.
+     * @param string $recipe_id The ID of the recipe.
      * @return array An array with recipe output objects.
      */
-    public function getRecipeOutputs(RecipeDTO $recipe): array
+    public function getRecipeOutputs(string $recipe_id): array
     {
         $query = self::$pdo->prepare(
             'SELECT recipe_id, item_id, amount, is_standard_recipe
@@ -141,7 +141,7 @@ class RecipeModel extends BaseModel
                     WHERE recipe_id = :recipeId'
         );
 
-        $query->execute([':recipeId' => $recipe->id]);
+        $query->execute([':recipeId' => $recipe_id]);
         $recipe_outputs = $query->fetchAll(PDO::FETCH_ASSOC);
 
         $dtos = [];
@@ -162,10 +162,10 @@ class RecipeModel extends BaseModel
     /**
      * Retrieves the inputs of a recipe based on the given recipe ID.
      *
-     * @param RecipeDTO $recipe The recipe to retrieve the inputs for.
+     * @param string $recipe_id The ID of the recipe.
      * @return array An array with recipe input objects.
      */
-    public function getRecipeInputs(RecipeDTO $recipe): array
+    public function getRecipeInputs(string $recipe_id): array
     {
         $query = self::$pdo->prepare(
             'SELECT recipe_id, amount, amount
@@ -173,7 +173,7 @@ class RecipeModel extends BaseModel
                     WHERE recipe_id = :recipeId'
         );
 
-        $query->execute([':recipeId' => $recipe->id]);
+        $query->execute([':recipeId' => $recipe_id]);
         $recipe_inputs = $query->fetchAll(PDO::FETCH_ASSOC);
 
         $dtos = [];

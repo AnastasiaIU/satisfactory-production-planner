@@ -41,80 +41,79 @@ function appendOutput(output, outputsColumn) {
     outputsColumn.appendChild(outputElement);
 }
 
-function displayProductionGraph(itemId, graphRow = null) {
+function createRow(graphRow, itemId, productionGraphContainer) {
+    graphRow = document.createElement("div");
+    graphRow.className = "graph-row d-flex align-items-start align-items-center m-3";
+    graphRow.setAttribute("data-item-id", itemId);
+    productionGraphContainer.appendChild(graphRow);
+    return graphRow;
+}
 
-    fetch(`/getRecipeDetails?item_id=${itemId}`)
-        .then((response) => {
-            if (!response.ok) throw new Error("Failed to load recipe details.");
-            return response.json();
-        })
-        .then((data) => {
-            console.log("Recipe data:", data);
-            if (data.error) {
-                alert(data.error);
-                return;
-            }
+async function displayProductionGraph(itemId, graphRow = null) {
+    const response = await fetch(`/getRecipeForItem/${itemId}`);
 
-            const productionGraphContainer = document.getElementById("productionGraph");
+    if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+    }
 
-            // If this is the first item in the chain, create a new row
-            if (!graphRow) {
-                graphRow = document.createElement("div");
-                graphRow.className = "graph-row d-flex align-items-start align-items-center m-3";
-                graphRow.setAttribute("data-item-id", itemId);
-                productionGraphContainer.appendChild(graphRow);
-            }
+    const recipe = await response.json();
+    const productionGraphContainer = document.getElementById("productionGraph");
 
-            // Check if the graph element for this recipe already exists
-            if (!graphRow.querySelector(`[data-item-id="${itemId}"]`)) {
-                // Append the graph element for the current recipe
-                appendGraphElement(data, graphRow);
+    // If this is the first item in the chain, create a new row
+    if (!graphRow) {
+        graphRow = createRow(graphRow, itemId, productionGraphContainer);
+    }
 
-                // Fetch and append inputs for the current recipe
-                fetch(`/getRecipeInputs?recipe_id=${data.recipe_id}`)
-                    .then((response) => {
-                        if (!response.ok) throw new Error("Failed to load recipe inputs.");
-                        return response.json();
-                    })
-                    .then((inputs) => {
-                        console.log("Recipe inputs:", inputs);
+    // Check if the graph element for this recipe already exists
+    if (!graphRow.querySelector(`[data-item-id="${itemId}"]`)) {
 
-                        inputs.forEach((input) => {
-                            if (input.is_raw_material) {
-                                const rawMaterialElement = document.createElement("div");
-                                rawMaterialElement.innerHTML = `<div class="arrow">➔</div>`;
-                                graphRow.insertBefore(rawMaterialElement, graphRow.firstChild);
-                                // If raw material, append it to the same row and stop
-                                appendRawMaterial(input, graphRow);
-                            } else {
-                                const rawMaterialElement = document.createElement("div");
-                                rawMaterialElement.innerHTML = `<div class="arrow">➔</div>`;
-                                graphRow.insertBefore(rawMaterialElement, graphRow.firstChild);
-                                // If intermediate item, recursively fetch its recipe
-                                displayProductionGraph(input.item_id, graphRow);
-                            }
-                        });
-                    })
-                    .catch((err) => console.error("Error loading recipe inputs:", err));
 
-                // Fetch and append outputs for the current recipe
-                fetch(`/getRecipeOutputs?recipe_id=${data.recipe_id}`)
-                    .then((response) => {
-                        if (!response.ok) throw new Error("Failed to load recipe outputs.");
-                        return response.json();
-                    })
-                    .then((outputs) => {
-                        console.log("Recipe outputs:", outputs);
+        // Append the graph element for the current recipe
+        appendGraphElement(recipe, graphRow);
 
-                        const outputsColumn = graphRow.querySelector(`[data-item-id="${data.recipe_id}"] .outputs-column`);
+        // Fetch and append inputs for the current recipe
+        fetch(`/getRecipeInputs?recipe_id=${data.recipe_id}`)
+            .then((response) => {
+                if (!response.ok) throw new Error("Failed to load recipe inputs.");
+                return response.json();
+            })
+            .then((inputs) => {
+                console.log("Recipe inputs:", inputs);
 
-                        outputs.forEach((output) => {
-                            // Append the output item to the outputs column
-                            appendOutput(output, outputsColumn);
-                        });
-                    })
-                    .catch((err) => console.error("Error loading recipe outputs:", err));
-            }
-        })
-        .catch((err) => console.error("Error loading production graph:", err));
+                inputs.forEach((input) => {
+                    if (input.is_raw_material) {
+                        const rawMaterialElement = document.createElement("div");
+                        rawMaterialElement.innerHTML = `<div class="arrow">➔</div>`;
+                        graphRow.insertBefore(rawMaterialElement, graphRow.firstChild);
+                        // If raw material, append it to the same row and stop
+                        appendRawMaterial(input, graphRow);
+                    } else {
+                        const rawMaterialElement = document.createElement("div");
+                        rawMaterialElement.innerHTML = `<div class="arrow">➔</div>`;
+                        graphRow.insertBefore(rawMaterialElement, graphRow.firstChild);
+                        // If intermediate item, recursively fetch its recipe
+                        displayProductionGraph(input.item_id, graphRow);
+                    }
+                });
+            })
+            .catch((err) => console.error("Error loading recipe inputs:", err));
+
+        // Fetch and append outputs for the current recipe
+        fetch(`/getRecipeOutputs?recipe_id=${data.recipe_id}`)
+            .then((response) => {
+                if (!response.ok) throw new Error("Failed to load recipe outputs.");
+                return response.json();
+            })
+            .then((outputs) => {
+                console.log("Recipe outputs:", outputs);
+
+                const outputsColumn = graphRow.querySelector(`[data-item-id="${data.recipe_id}"] .outputs-column`);
+
+                outputs.forEach((output) => {
+                    // Append the output item to the outputs column
+                    appendOutput(output, outputsColumn);
+                });
+            })
+            .catch((err) => console.error("Error loading recipe outputs:", err));
+    }
 }
