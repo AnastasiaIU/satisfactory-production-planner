@@ -31,6 +31,7 @@ body {
 
 .machine, .item {
     padding: 8px;
+    flex-direction: column;
 }
 
 .circle {

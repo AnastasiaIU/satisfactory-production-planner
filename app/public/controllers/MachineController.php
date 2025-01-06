@@ -3,6 +3,7 @@
 require_once(__DIR__ . '/BaseController.php');
 require_once(__DIR__ . '/../models/MachineModel.php');
 require_once(__DIR__ . '/../services/MachineService.php');
+require_once (__DIR__ . '/../dto/MachineDTO.php');
 
 /**
  * Controller class for handling machine-related operations.
@@ -36,5 +37,16 @@ class MachineController extends BaseController
     public function loadMachinesFromJson(): void
     {
         $this->machineService->loadMachinesFromJson($this::INITIAL_DATASET);
+    }
+
+    /**
+     * Retrieves a machine by its ID.
+     *
+     * @param string $machineId The ID of the machine to retrieve.
+     * @return MachineDTO The data transfer object representing the machine.
+     */
+    public function getMachine(string $machineId): MachineDTO
+    {
+        return $this->machineModel->getMachine($machineId);
     }
 }
