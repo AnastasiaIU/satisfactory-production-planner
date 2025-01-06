@@ -40,7 +40,7 @@ async function appendOutput(itemId, output, outputContainer) {
     const item = await response.json();
 
     const outputElement = document.createElement("div");
-    outputElement.className = "graph-col output-item d-flex align-items-center mb-2";
+    outputElement.className = "graph-col output-item d-flex align-items-center";
 
     outputElement.innerHTML = `
         <img src="/assets/images/${item.icon_name}" alt="${item.display_name}" class="square">
@@ -49,6 +49,17 @@ async function appendOutput(itemId, output, outputContainer) {
     `;
 
     outputRow.appendChild(outputElement);
+}
+
+function appendArrow(container, refElement) {
+    const outputElement = document.createElement("div");
+    outputElement.className = "d-flex align-items-center";
+
+    outputElement.innerHTML = `
+        <div class="arrow">➔</div>
+    `;
+
+    container.insertBefore(outputElement, refElement);
 }
 
 /**
@@ -77,7 +88,7 @@ function createRow(graphRow, tag, container) {
  */
 function createColumn(graphColumn, tag, container) {
     graphColumn = document.createElement("div");
-    graphColumn.className = "graph-col d-flex align-items-start align-items-center";
+    graphColumn.className = "graph-col d-flex align-items-start align-items-center gap-2";
     graphColumn.setAttribute("data-item-id", tag);
     container.appendChild(graphColumn);
     return graphColumn;
@@ -104,6 +115,8 @@ async function displayProductionGraph(itemId) {
         for (const output of recipe.output) {
             await appendOutput(output.item_id, output, outputContainer);
         }
+
+        appendArrow(graphRow, outputContainer);
     }
 
 

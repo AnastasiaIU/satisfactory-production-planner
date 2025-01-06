@@ -114,6 +114,11 @@ class RecipeService extends BaseService
                         $item_id = $productPair[1];
                         $amount = (float)$productPair[2];
 
+                        // Count recipe output per minute
+                        $amount = 60 / $item['mManufactoringDuration'] * $amount;
+
+                        if ($this->getItemForm($data, $item_id) === 'RF_LIQUID') $amount /= 1000;
+
                         $is_alternative = $this->getIsAlternative(
                             $alternative_recipe_outputs,
                             $standard_recipe_outputs,
@@ -170,11 +175,26 @@ class RecipeService extends BaseService
                         $item_id = $ingredientPair[1];
                         $amount = (float)$ingredientPair[2];
 
+                        // Count recipe output per minute
+                        $amount = 60 / $item['mManufactoringDuration'] * $amount;
+
+                        if ($this->getItemForm($data, $item_id) === 'RF_LIQUID') $amount /= 1000;
+
                         $this->utilityRecipeModel->insertRecipeInput($recipe_id, $item_id, $amount);
                     }
                 }
             }
         }
+    }
+
+    private function getItemForm(array $data, string $item_id): ?string
+    {
+        foreach ($data as $class) {
+            foreach ($class['Classes'] as $item) {
+                if ($item['ClassName'] === $item_id) return $item['mForm'];
+            }
+        }
+        return null;
     }
 
     /**
