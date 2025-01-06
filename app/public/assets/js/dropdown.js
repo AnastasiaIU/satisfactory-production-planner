@@ -118,7 +118,7 @@ function createListItem(itemIcon, itemName) {
             <span>${itemName}</span>
         </div>
         <div class="d-flex align-items-center p-0">
-            <input type="number" class="form-control text-center quantity-input" value="1" min="0" step="1" style="width: 120px;">
+            <input type="number" class="form-control text-center quantity-input mt-1" value="1" min="0" step="1">
         </div>
     `;
 
@@ -183,7 +183,6 @@ function addOnClickEventToDropdownItems(dropdownItemsContainer) {
             // Append the new list item to the output list
             outputsList.appendChild(listItem);
 
-            // Fetch and display the production graph
             displayProductionGraph(itemId);
 
             addEventListenerToItemQuantity(listItem, dropdownItemsContainer, itemId);
@@ -233,11 +232,7 @@ function addOnClickToAddItemBtn() {
         if (isDropdownLoaded) return;
 
         const response = await fetch('/producibleItems');
-
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
         const items = await response.json();
 
         if (!Array.isArray(items) || items.length === 0) return;

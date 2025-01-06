@@ -108,7 +108,7 @@ class RecipeModel extends BaseModel
     public function getRecipeInputs(string $recipe_id): array
     {
         $query = self::$pdo->prepare(
-            'SELECT recipe_id, amount, amount
+            'SELECT recipe_id, item_id, amount
                     FROM `RECIPE INPUT`
                     WHERE recipe_id = :recipeId'
         );

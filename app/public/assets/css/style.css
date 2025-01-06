@@ -98,6 +98,13 @@ body {
     flex-wrap: nowrap;
 }
 
+.graph-col {
+    display: flex;
+    align-items: center;
+    flex-wrap: nowrap;
+    flex-direction: column;
+}
+
 .graph-container {
     display: flex;
     align-items: center;
@@ -130,4 +137,8 @@ body {
 .error-container .image {
     width: 100px;
     height: 100px;
+}
+
+.quantity-input {
+    width: 120px;
 }

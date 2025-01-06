@@ -78,6 +78,8 @@ class RecipeService extends BaseService
 
         $resource_recipe_outputs = $this->utilityRecipeModel->getResourceRecipeOutputs();
         $event_recipes = $this->utilityRecipeModel->getEventRecipes();
+        $alternative_recipe_outputs = $this->utilityRecipeModel->getAlternativeRecipeOutputs();
+        $standard_recipe_outputs = $this->utilityRecipeModel->getStandardRecipeOutputs();
 
         // Insert resource recipe outputs into the database
         foreach ($resource_recipe_outputs as $recipe_output) {
@@ -112,7 +114,13 @@ class RecipeService extends BaseService
                         $item_id = $productPair[1];
                         $amount = (float)$productPair[2];
 
-                        $is_alternative = $this->getIsAlternative($recipe_id, $automated_machine, $item_id);
+                        $is_alternative = $this->getIsAlternative(
+                            $alternative_recipe_outputs,
+                            $standard_recipe_outputs,
+                            $recipe_id,
+                            $automated_machine,
+                            $item_id
+                        );
 
                         $this->utilityRecipeModel->insertRecipeOutput($recipe_id, $item_id, $amount, !$is_alternative);
                     }
@@ -194,22 +202,37 @@ class RecipeService extends BaseService
      * @param string $item_id The ID of the item produced by the recipe.
      * @return bool True if the recipe is an alternative recipe, false otherwise.
      */
-    private function getIsAlternative(string $recipe_id, string $automated_machine, string $item_id): bool
+    private function getIsAlternative(
+        array  $alternative_recipe_outputs,
+        array  $standard_recipe_outputs,
+        string $recipe_id,
+        string $automated_machine,
+        string $item_id
+    ): bool
     {
-        $alternative_recipe_outputs = $this->utilityRecipeModel->getAlternativeRecipeOutputs();
-        $standard_recipe_outputs = $this->utilityRecipeModel->getStandardRecipeOutputs();
-
         $is_alternative = str_contains($recipe_id, 'Recipe_Alternate_');
-        if ($automated_machine == 'Build_Converter_C') $is_alternative = true;
-
-        if (array_key_exists($recipe_id, $alternative_recipe_outputs)) {
-            if (in_array($item_id, $alternative_recipe_outputs[$recipe_id])) $is_alternative = true;
-        }
-
-        if (array_key_exists($recipe_id, $standard_recipe_outputs)) {
-            if ($standard_recipe_outputs[$recipe_id] == $item_id) $is_alternative = false;
-        }
+        if ($automated_machine === 'Build_Converter_C') $is_alternative = true;
+        if ($this->isRecipeOutputInArray($alternative_recipe_outputs, $recipe_id, $item_id)) $is_alternative = true;
+        if ($this->isRecipeOutputInArray($standard_recipe_outputs, $recipe_id, $item_id)) $is_alternative = false;
 
         return $is_alternative;
+    }
+
+    /**
+     * Checks if a recipe ID and an output item exist in a two-dimensional array.
+     *
+     * @param array $array The two-dimensional array to search.
+     * @param string $recipe_id The recipe_id to search for.
+     * @param string $item_id The item_id to search for.
+     * @return bool True if the recipe_id is found, false otherwise.
+     */
+    private function isRecipeOutputInArray(array $array, string $recipe_id, string $item_id): bool
+    {
+        foreach ($array as $recipe_output) {
+            if (in_array($recipe_id, $recipe_output) && in_array($item_id, $recipe_output)) {
+                return true;
+            }
+        }
+        return false;
     }
 }

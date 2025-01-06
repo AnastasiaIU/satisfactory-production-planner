@@ -3,6 +3,7 @@
 require_once(__DIR__ . '/BaseController.php');
 require_once(__DIR__ . '/../models/ItemModel.php');
 require_once(__DIR__ . '/../services/ItemService.php');
+require_once(__DIR__ . '/../dto/ItemDTO.php');
 
 /**
  * Controller class for handling item-related operations.
@@ -46,5 +47,16 @@ class ItemController extends BaseController
     public function fetchAllProducible(): array
     {
         return $this->itemModel->fetchAllProducible();
+    }
+
+    /**
+     * Retrieves an item by its ID.
+     *
+     * @param string $itemId The ID of the item to retrieve.
+     * @return ItemDTO The data transfer object representing the item.
+     */
+    public function getItem(string $itemId): ItemDTO
+    {
+        return $this->itemModel->getItem($itemId);
     }
 }

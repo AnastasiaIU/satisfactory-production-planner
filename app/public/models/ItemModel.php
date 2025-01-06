@@ -49,4 +49,29 @@ class ItemModel extends BaseModel
 
         return $dtos;
     }
+
+    /**
+     * Retrieves an item by its ID.
+     *
+     * @param string $itemId The ID of the item to retrieve.
+     * @return ItemDTO The data transfer object representing the item.
+     */
+    public function getItem(string $itemId): ItemDTO
+    {
+        $query = self::$pdo->prepare(
+            'SELECT id, display_name, icon_name, category, display_order
+                    FROM ITEM
+                    WHERE id = :itemId'
+        );
+        $query->execute(['itemId' => $itemId]);
+        $item = $query->fetch(PDO::FETCH_ASSOC);
+
+        return new ItemDTO(
+            $item['id'],
+            $item['display_name'],
+            $item['icon_name'],
+            $item['category'],
+            $item['display_order']
+        );
+    }
 }
