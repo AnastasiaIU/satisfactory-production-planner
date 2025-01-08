@@ -1,163 +1,143 @@
-function appendOutput(item, output, container, refElement = null) {
-    const outputElement = document.createElement("div");
-    outputElement.className = "graph-col output-item d-flex align-items-center";
-    outputElement.setAttribute("data-item-id", `${output.recipe_id} ${output.item_id} output`);
+async function displayProductionGraph(itemId) {
+    const productionGraphContainer = document.getElementById("productionGraph");
+    let graphRow = document.querySelector(`[data-item-id="graph ${itemId}"]`);
 
-    outputElement.innerHTML = `
-        <img src="/assets/images/${item.icon_name}" alt="${item.display_name}" class="square">
-        <p class="item-name h6 m-0 mt-1">${item.display_name}</p>
-        <p class="item-amount m-0">${output.amount} p/m</p>
-    `;
+    if (!graphRow) {
+        graphRow = createContainer(productionGraphContainer, false);
+        const recipe = await fetchFromApi(`/getRecipeForItem/${itemId}`);
+        const outputContainer = createContainer(graphRow, true);
+        outputContainer.classList.add("output-container");
 
-    if (refElement === null) {
-        container.appendChild(outputElement);
+        for (const output of recipe.output) {
+            const outputItem = await fetchFromApi(`/getItem/${output.item_id}`);
+            const outputElement = await appendItem(outputItem, output, outputContainer);
+            outputElement.querySelector("img").classList.add("output");
+        }
+
+        const machine = await fetchFromApi(`/getMachine/${recipe.produced_in}`);
+        const arrowOutput = appendArrow(graphRow, outputContainer);
+        const machineElement = appendMachine(machine, graphRow, arrowOutput);
+
+        await extendGraph(recipe, graphRow, machineElement);
+    }
+}
+
+/**
+ * Creates a new container element and appends it to the specified container.
+ *
+ * @param {HTMLElement} container - The container element to which the new container will be appended.
+ * @param {boolean} isVertical - A flag indicating whether the container should be vertical.
+ * @param {HTMLElement|null} insertBeforeElement - The element before which the new container will be inserted, or null to append at the end.
+ * @returns {HTMLElement} The newly created container element.
+ */
+function createContainer(container, isVertical, insertBeforeElement = null) {
+    const newElement = document.createElement("div");
+    newElement.className = "d-flex align-items-start align-items-center gap-2";
+    newElement.classList.add(isVertical ? "flex-column" : "flex-row");
+
+    if (insertBeforeElement === null) {
+        container.appendChild(newElement);
     } else {
-        container.insertBefore(outputElement, refElement);
+        container.insertBefore(newElement, insertBeforeElement)
     }
 
-    return outputElement;
+    return newElement;
 }
 
-function appendInput(item, input, container, refElement = null) {
-    const inputElement = document.createElement("div");
-    inputElement.className = "graph-col output-item d-flex align-items-center";
-    inputElement.setAttribute("data-item-id", `${input.recipe_id} ${input.item_id} input`);
-
-    inputElement.innerHTML = `
-        <img src="/assets/images/${item.icon_name}" alt="${item.display_name}" class="square">
-        <p class="item-name h6 m-0 mt-1">${item.display_name}</p>
-        <p class="item-amount m-0">${input.amount} p/m</p>
+/**
+ * Appends an item element to the specified container.
+ *
+ * @param {Object} item - The item object containing item details.
+ * @param {Object} amountObject - The object containing amount information. Either input or output.
+ * @param {HTMLElement} container - The container element to which the item element will be appended.
+ * @param {HTMLElement|null} [insertBeforeElement=null] - The element before which the item element will be inserted, or null to append at the end.
+ * @returns {HTMLElement} The newly created item element.
+ */
+function appendItem(item, amountObject, container, insertBeforeElement = null) {
+    const itemElement = document.createElement("div");
+    itemElement.className = "d-flex flex-column align-items-center graph-element";
+    itemElement.innerHTML = `
+        <img src="/assets/images/${item.icon_name}" alt="${item.display_name}" class="graph-image square">
+        <p class="text-center h6 m-0 mt-1">${item.display_name}</p>
+        <p class="text-center m-0">${amountObject.amount} p/m</p>
     `;
 
-    container.insertBefore(inputElement, refElement);
+    if (insertBeforeElement === null) {
+        container.appendChild(itemElement);
+    } else {
+        container.insertBefore(itemElement, insertBeforeElement)
+    }
 
-    return inputElement;
+    return itemElement;
 }
 
-function appendArrow(container, refElement) {
+/**
+ * Appends an arrow element to the specified container.
+ *
+ * @param {HTMLElement} container - The container element to which the arrow element will be appended.
+ * @param {HTMLElement|null} [insertBeforeElement=null] - The element before which the arrow element will be inserted,
+ * or null to append at the end.
+ * @returns {HTMLElement} The newly created arrow element.
+ */
+function appendArrow(container, insertBeforeElement = null) {
     const arrowElement = document.createElement("div");
     arrowElement.className = "d-flex align-items-center";
-
     arrowElement.innerHTML = `
         <div class="arrow">➔</div>
     `;
 
-    container.insertBefore(arrowElement, refElement);
+    if (insertBeforeElement === null) {
+        container.appendChild(arrowElement);
+    } else {
+        container.insertBefore(arrowElement, insertBeforeElement)
+    }
 
     return arrowElement;
 }
 
-function appendMachine(recipe_id, machine, container, refElement) {
+/**
+ * Appends a machine element to the specified container.
+ *
+ * @param {Object} machine - The machine object containing machine details.
+ * @param {HTMLElement} container - The container element to which the machine element will be appended.
+ * @param {HTMLElement|null} [insertBeforeElement=null] - The element before which the machine element will be inserted,
+ * or null to append at the end.
+ * @returns {HTMLElement} The newly created machine element.
+ */
+function appendMachine(machine, container, insertBeforeElement = null) {
     const machineElement = document.createElement("div");
-    machineElement.className = "graph-col machine d-flex align-items-center";
-    machineElement.setAttribute("data-item-id", recipe_id);
-
+    machineElement.className = "d-flex flex-column align-items-center graph-element";
     machineElement.innerHTML = `
-        <div class="machine d-flex align-items-center">
-            <img src="/assets/images/${machine.icon_name}" alt="Machine" class="circle">
-            <p class="machine-name h6 m-0 mt-1">1 x ${machine.display_name}</p>
-        </div>
+        <img src="/assets/images/${machine.icon_name}" alt="${machine.display_name}" class="graph-image circle">
+        <p class="text-center h6 m-0 mt-1">1 x ${machine.display_name}</p>
     `;
 
-    container.insertBefore(machineElement, refElement);
+    if (insertBeforeElement === null) {
+        container.appendChild(machineElement);
+    } else {
+        container.insertBefore(machineElement, insertBeforeElement)
+    }
 
     return machineElement;
 }
 
-/**
- * Creates a new row element for the production graph and appends it to the container.
- *
- * @param {HTMLElement|null} graphRow - The current graph row element, or null if creating a new row.
- * @param {string} tag - The tag to associate with the new row.
- * @param {HTMLElement} container - The container element to which the new row will be appended.
- * @returns {HTMLElement} The newly created graph row element.
- */
-function createRow(graphRow, tag, container, refElement = null) {
-    graphRow = document.createElement("div");
-    graphRow.className = "graph-row d-flex align-items-start align-items-center";
-    graphRow.setAttribute("data-item-id", tag);
+async function extendGraph(recipe, container, insertBeforeElement) {
+    if (recipe.input.length !== 0) {
+        const arrowInput = appendArrow(container, insertBeforeElement);
+        const wrapContainer = createContainer(container, true, arrowInput);
+        wrapContainer.classList.add("input-container");
+        const inputContainer = createContainer(wrapContainer, true);
+        inputContainer.classList.add("input-inner-container");
 
-    if (refElement === null) {
-        container.appendChild(graphRow);
-    } else {
-        container.insertBefore(graphRow, refElement)
-    }
-
-    return graphRow;
-}
-
-/**
- * Creates a new column element for the production graph and appends it to the container.
- *
- * @param {HTMLElement|null} graphColumn - The current graph column element, or null if creating a new column.
- * @param {string} tag - The tag to associate with the new column.
- * @param {HTMLElement} container - The container element to which the new column will be appended.
- * @returns {HTMLElement} The newly created graph column element.
- */
-function createColumn(graphColumn, tag, container, refElement = null) {
-    graphColumn = document.createElement("div");
-    graphColumn.className = "graph-col d-flex align-items-start align-items-center gap-2";
-    graphColumn.setAttribute("data-item-id", tag);
-
-    if (refElement === null) {
-        container.appendChild(graphColumn);
-    } else {
-        container.insertBefore(graphColumn, refElement)
-    }
-
-    return graphColumn;
-}
-
-async function displayProductionGraph(itemId) {
-    let graphRow = document.querySelector(`[data-item-id="graph ${itemId}"]`);
-    const productionGraphContainer = document.getElementById("productionGraph");
-
-    const responseRecipe = await fetch(`/getRecipeForItem/${itemId}`);
-    if (!responseRecipe.ok) throw new Error(`HTTP error! status: ${responseRecipe.status}`);
-    const recipe = await responseRecipe.json();
-
-    if (!graphRow) {
-        graphRow = createRow(graphRow, `graph ${itemId}`, productionGraphContainer);
-
-        let outputContainer = null;
-        if (recipe.output.length > 1) {
-            outputContainer = createColumn(outputContainer, `${itemId} recipe_output`, graphRow)
-        } else {
-            outputContainer = createRow(outputContainer, `${itemId} recipe_output`, graphRow)
-        }
-
-        for (const output of recipe.output) {
-            const response = await fetch(`/getItem/${output.item_id}`);
-            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-            const item = await response.json();
-
-            await appendOutput(item, output, outputContainer);
-        }
-
-        const responseMachine = await fetch(`/getMachine/${recipe.produced_in}`);
-        if (!responseMachine.ok) throw new Error(`HTTP error! status: ${responseMachine.status}`);
-        const machine = await responseMachine.json();
-
-        const arrowOutput = appendArrow(graphRow, outputContainer);
-        const machineElement = appendMachine(recipe.recipe_id, machine, graphRow, arrowOutput);
-
-        if (recipe.input.length !== 0) {
-            const arrowInput = appendArrow(graphRow, machineElement);
-
-            let inputContainer = null;
-            if (recipe.input.length > 1) {
-                inputContainer = createColumn(inputContainer, `${itemId} recipe_input`, graphRow, arrowInput)
-            } else {
-                inputContainer = createRow(inputContainer, `${itemId} recipe_input`, graphRow, arrowInput)
-            }
-
-            for (const input of recipe.input) {
-                const response = await fetch(`/getItem/${input.item_id}`);
-                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-                const item = await response.json();
-
-                await appendInput(item, input, inputContainer);
-            }
+        for (const input of recipe.input) {
+            const innerGraphContainer = createContainer(inputContainer, false);
+            const inputItem = await fetchFromApi(`/getItem/${input.item_id}`);
+            const appendedItem = await appendItem(inputItem, input, innerGraphContainer);
+            const appendedArrow = await appendArrow(innerGraphContainer, appendedItem);
+            const inputRecipe = await fetchFromApi(`/getRecipeForItem/${input.item_id}`);
+            const machineToAppend = await fetchFromApi(`/getMachine/${inputRecipe.produced_in}`);
+            const appendedMachine = await appendMachine(machineToAppend, innerGraphContainer, appendedArrow);
+            if (inputItem.category !== 'Raw Resources') await extendGraph(inputRecipe, innerGraphContainer, appendedMachine);
         }
     }
 }

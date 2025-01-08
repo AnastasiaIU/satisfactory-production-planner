@@ -1,5 +1,21 @@
 let isDropdownLoaded = false;
 
+// The order in which categories should be displayed in the dropdown
+const categoryOrder = [
+    "Raw Resources",
+    "Tier 0",
+    "Tier 2",
+    "Tier 3",
+    "Tier 4",
+    "Tier 5",
+    "Tier 6",
+    "Tier 7",
+    "Tier 8",
+    "Tier 9",
+    "MAM",
+    "Equipment"
+];
+
 /**
  * Sets up an event listener to clear the search input and reset the dropdown items when the dropdown is closed.
  */
@@ -231,9 +247,7 @@ function addOnClickToAddItemBtn() {
     addItemBtn.addEventListener("click", async () => {
         if (isDropdownLoaded) return;
 
-        const response = await fetch('/producibleItems');
-        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-        const items = await response.json();
+        const items = await fetchFromApi('/producibleItems');
 
         if (!Array.isArray(items) || items.length === 0) return;
 

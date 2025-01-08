@@ -1,7 +1,9 @@
 :root {
-  --white: #fff;
-  --black: #000;
   --ficsit-orange: #fa9549;
-  --iron: #808182;
-  --steel: #3c3f47;
+  --grey: #808182;
+  --dark-grey: #3c3f47;
+  --pale-green: #D5E1A3;
+  --green: #4F772D;
+  --blue: #3E6990;
+  --light-blue: #B6CBF1;
 }
