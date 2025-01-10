@@ -35,7 +35,7 @@ function addClearDropdownOnClose() {
 /**
  * Retrieves all items under a given category element.
  *
- * @param {HTMLElement} category - The category element whose items are to be retrieved.
+ * @param {HTMLElement} category The category element whose items are to be retrieved.
  * @returns {HTMLElement[]} An array of item elements under the specified category.
  */
 function getCategoryItems(category) {
@@ -54,8 +54,8 @@ function getCategoryItems(category) {
 /**
  * Determines the visibility of a dropdown item based on the search input.
  *
- * @param {HTMLElement} item - The dropdown item element to check.
- * @param {string} input - The search input string to filter the items.
+ * @param {HTMLElement} item The dropdown item element to check.
+ * @param {string} input The search input string to filter the items.
  * @returns {boolean} True if the item is visible, false otherwise.
  */
 function getItemVisibility(item, input) {
@@ -72,8 +72,8 @@ function getItemVisibility(item, input) {
 /**
  * Displays or removes a "no results found" message based on the search results.
  *
- * @param {boolean} hasResults - Indicates if there are any matching results.
- * @param {HTMLElement} dropdownItemsContainer - The container element for the dropdown items.
+ * @param {boolean} hasResults Indicates if there are any matching results.
+ * @param {HTMLElement} dropdownItemsContainer The container element for the dropdown items.
  */
 function toggleNoResultsMessage(hasResults, dropdownItemsContainer) {
     const noResultsMessage = document.getElementById("noResultsMessage");
@@ -121,11 +121,12 @@ function filterDropdown() {
 /**
  * Creates a new list item in the output list with the given item details.
  *
- * @param {string} itemIcon - The URL of the item's icon.
- * @param {string} itemName - The name of the item.
+ * @param {string} itemId The ID of the item.
+ * @param {string} itemIcon The URL of the item's icon.
+ * @param {string} itemName The name of the item.
  * @returns {HTMLElement} The created list item element.
  */
-function createListItem(itemIcon, itemName) {
+function createListItem(itemId, itemIcon, itemName) {
     const listItem = document.createElement("li");
     listItem.className = "list-group-item card d-flex flex-column align-items-start border-0";
     listItem.innerHTML = `
@@ -134,7 +135,7 @@ function createListItem(itemIcon, itemName) {
             <span>${itemName}</span>
         </div>
         <div class="d-flex align-items-center p-0">
-            <input type="number" class="form-control text-center quantity-input mt-1" value="1" min="0" step="1">
+            <input type="number" class="form-control text-center quantity-input mt-1" value="1" min="0" step="1" data-item-id="${itemId}">
         </div>
     `;
 
@@ -145,9 +146,9 @@ function createListItem(itemIcon, itemName) {
  * Adds an event listener to the quantity input of a list item to handle changes.
  * Removes the item if the quantity is zero or negative.
  *
- * @param {HTMLElement} listItem - The list item element containing the quantity input.
- * @param {HTMLElement} dropdownItemsContainer - The container element for the dropdown items.
- * @param {string} itemId - The ID of the item.
+ * @param {HTMLElement} listItem The list item element containing the quantity input.
+ * @param {HTMLElement} dropdownItemsContainer The container element for the dropdown items.
+ * @param {string} itemId The ID of the item.
  */
 function addEventListenerToItemQuantity(listItem, dropdownItemsContainer, itemId) {
     const quantityInput = listItem.querySelector(".quantity-input");
@@ -177,7 +178,7 @@ function addEventListenerToItemQuantity(listItem, dropdownItemsContainer, itemId
  * Adds a click event listener to the dropdown items container.
  * Handles the creation of a new list item in the output list and hides the clicked dropdown item.
  *
- * @param {HTMLElement} dropdownItemsContainer - The container element for the dropdown items.
+ * @param {HTMLElement} dropdownItemsContainer The container element for the dropdown items.
  */
 function addOnClickEventToDropdownItems(dropdownItemsContainer) {
     const outputsList = document.getElementById("outputsList");
@@ -191,7 +192,7 @@ function addOnClickEventToDropdownItems(dropdownItemsContainer) {
             const itemId = target.dataset.itemId;
             const itemName = target.innerText.trim();
             const itemIcon = target.querySelector("img")?.src || "";
-            const listItem = createListItem(itemIcon, itemName);
+            const listItem = createListItem(itemId, itemIcon, itemName);
 
             // Hide the dropdown item
             target.style.display = "none";
@@ -209,8 +210,8 @@ function addOnClickEventToDropdownItems(dropdownItemsContainer) {
 /**
  * Adds a category header element to the dropdown items container.
  *
- * @param {string} category - The name of the category to be added as a header.
- * @param {HTMLElement} dropdownItemsContainer - The container element for the dropdown items.
+ * @param {string} category The name of the category to be added as a header.
+ * @param {HTMLElement} dropdownItemsContainer The container element for the dropdown items.
  */
 function addCategoryHeader(category, dropdownItemsContainer) {
     const header = document.createElement("h6");
@@ -222,8 +223,8 @@ function addCategoryHeader(category, dropdownItemsContainer) {
 /**
  * Creates a dropdown item element and appends it to the dropdown items container.
  *
- * @param {Object} item - The item object containing details for the dropdown item.
- * @param {HTMLElement} dropdownItemsContainer - The container element for the dropdown items.
+ * @param {Object} item The item object containing details for the dropdown item.
+ * @param {HTMLElement} dropdownItemsContainer The container element for the dropdown items.
  */
 function createDropdownItem(item, dropdownItemsContainer) {
     const li = document.createElement("li");
@@ -269,7 +270,7 @@ function addOnClickToAddItemBtn() {
 /**
  * Groups and sorts items by category and display order.
  *
- * @param {Object[]} items - The array of items to be grouped and sorted.
+ * @param {Object[]} items The array of items to be grouped and sorted.
  * @returns {Object} An object where keys are category names and values are arrays of items sorted by display order.
  */
 function groupAndSortItems(items) {

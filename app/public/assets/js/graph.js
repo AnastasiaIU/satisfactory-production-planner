@@ -1,7 +1,7 @@
 /**
  * Displays the production graph for a given item.
  *
- * @param {string} itemId - The ID of the item for which the production graph will be displayed.
+ * @param {string} itemId The ID of the item for which the production graph will be displayed.
  */
 async function displayProductionGraph(itemId) {
     const productionGraphContainer = document.getElementById("productionGraph");
@@ -17,10 +17,24 @@ async function displayProductionGraph(itemId) {
         // Fetch the recipe for the item from the API
         const recipe = await fetchFromApi(`/getRecipeForItem/${itemId}`);
 
+        // Get user input for the item
+        const userInput = document.querySelector(`.quantity-input[data-item-id="${itemId}"]`).value;
+
+        // Calculate the required production power
+        let productionPower = 0;
         for (const output of recipe.output) {
-            // Fetch and append the output item element to the container
+            if (output.item_id === itemId) {
+                productionPower = calculateProductionPower(userInput, output.amount);
+                break;
+            }
+        }
+
+        // Fetch, create, and append outputs to the output container
+        for (const output of recipe.output) {
             const outputItem = await fetchFromApi(`/getItem/${output.item_id}`);
-            const outputElement = await appendItem(outputItem, output, outputContainer);
+            const amount = output.item_id === itemId ? userInput :
+                calculateAmount(output.amount, productionPower);
+            const outputElement = await appendItem(outputItem, amount, outputContainer);
             outputElement.querySelector("img").classList.add("output");
         }
 
@@ -29,22 +43,46 @@ async function displayProductionGraph(itemId) {
 
         // Fetch and append the machine to the graph row
         const machine = await fetchFromApi(`/getMachine/${recipe.produced_in}`);
-        const machineElement = appendMachine(machine, graphRow, arrowOutput);
+        const machineQuantity = Math.ceil(productionPower);
+        const machineElement = appendMachine(machine, machineQuantity, graphRow, arrowOutput);
 
         // Extend the graph by adding input items, arrows, and machines recursively
-        await extendGraph(recipe, graphRow, machineElement);
+        await extendGraph(recipe, productionPower, graphRow, machineElement);
 
-        // Add a padding class to the graph row
-        graphRow.querySelector('.input-container').classList.add("p-3");
+        // Add a padding class to the input container if it exists
+        const inputContainer = graphRow.querySelector('.input-container');
+        if (inputContainer !== null) inputContainer.classList.add("p-3");
     }
+}
+
+/**
+ * Calculates the required production power for a given output amount and output amount per minute.
+ *
+ * @param {string} outputAmount Required output amount.
+ * @param {string} outputAmountPerMinute Output amount per minute.
+ * @returns {number} The required production power as a decimal fraction.
+ */
+function calculateProductionPower(outputAmount, outputAmountPerMinute) {
+    return parseFloat(outputAmount) / parseFloat(outputAmountPerMinute);
+}
+
+/**
+ * Calculates the amount of an item based on the production power.
+ *
+ * @param {string} amount Amount of the item produced per minute.
+ * @param productionPower The required production power.
+ * @returns {number} The required amount of the item produced per minute.
+ */
+function calculateAmount(amount, productionPower) {
+    return parseFloat((parseFloat(amount) * productionPower).toPrecision(3));
 }
 
 /**
  * Creates a new container element and appends it to the specified container.
  *
- * @param {HTMLElement} container - The container element to which the new container will be appended.
- * @param {boolean} isVertical - A flag indicating whether the container should be vertical.
- * @param {HTMLElement|null} insertBeforeElement - The element before which the new container will be inserted,
+ * @param {HTMLElement} container The container element to which the new container will be appended.
+ * @param {boolean} isVertical A flag indicating whether the container should be vertical.
+ * @param {HTMLElement|null} insertBeforeElement The element before which the new container will be inserted,
  * or null to append at the end.
  * @returns {HTMLElement} The newly created container element.
  */
@@ -65,20 +103,20 @@ function createContainer(container, isVertical, insertBeforeElement = null) {
 /**
  * Appends an item element to the specified container.
  *
- * @param {Object} item - The item object containing item details.
- * @param {Object} amountObject - The object containing amount information. Either input or output.
- * @param {ChildNode} container - The container element to which the item element will be appended.
- * @param {HTMLElement|null} [insertBeforeElement=null] - The element before which the item element will be inserted,
+ * @param {Object} item The item object containing item details.
+ * @param {number} amount The amount of the item produced per minute.
+ * @param {ChildNode} container The container element to which the item element will be appended.
+ * @param {HTMLElement|null} [insertBeforeElement=null] The element before which the item element will be inserted,
  * or null to append at the end.
  * @returns {HTMLElement} The newly created item element.
  */
-function appendItem(item, amountObject, container, insertBeforeElement = null) {
+function appendItem(item, amount, container, insertBeforeElement = null) {
     const itemElement = document.createElement("div");
     itemElement.className = "d-flex flex-column align-items-center graph-element";
     itemElement.innerHTML = `
         <img src="/assets/images/${item.icon_name}" alt="${item.display_name}" class="graph-image square">
         <p class="text-center text-break h6 m-0 mt-1">${item.display_name}</p>
-        <p class="text-center m-0">${amountObject.amount} p/m</p>
+        <p class="text-center m-0">${amount} p/m</p>
     `;
 
     if (insertBeforeElement === null) {
@@ -93,8 +131,8 @@ function appendItem(item, amountObject, container, insertBeforeElement = null) {
 /**
  * Appends an arrow element to the specified container.
  *
- * @param {HTMLElement} container - The container element to which the arrow element will be appended.
- * @param {HTMLElement|null} [insertBeforeElement=null] - The element before which the arrow element will be inserted,
+ * @param {HTMLElement} container The container element to which the arrow element will be appended.
+ * @param {HTMLElement|null} [insertBeforeElement=null] The element before which the arrow element will be inserted,
  * or null to append at the end.
  * @returns {HTMLElement} The newly created arrow element.
  */
@@ -117,18 +155,19 @@ function appendArrow(container, insertBeforeElement = null) {
 /**
  * Appends a machine element to the specified container.
  *
- * @param {Object} machine - The machine object containing machine details.
- * @param {HTMLElement} container - The container element to which the machine element will be appended.
- * @param {HTMLElement|null} [insertBeforeElement=null] - The element before which the machine element will be inserted,
+ * @param {Object} machine The machine object containing machine details.
+ * @param {number} quantity The quantity of the machine.
+ * @param {HTMLElement} container The container element to which the machine element will be appended.
+ * @param {HTMLElement|null} [insertBeforeElement=null] The element before which the machine element will be inserted,
  * or null to append at the end.
  * @returns {HTMLElement} The newly created machine element.
  */
-function appendMachine(machine, container, insertBeforeElement = null) {
+function appendMachine(machine, quantity, container, insertBeforeElement = null) {
     const machineElement = document.createElement("div");
     machineElement.className = "d-flex flex-column align-items-center graph-element";
     machineElement.innerHTML = `
         <img src="/assets/images/${machine.icon_name}" alt="${machine.display_name}" class="graph-image circle">
-        <p class="text-center h6 m-0 mt-1">1 x ${machine.display_name}</p>
+        <p class="text-center h6 m-0 mt-1">${quantity} x ${machine.display_name}</p>
     `;
 
     if (insertBeforeElement === null) {
@@ -143,12 +182,13 @@ function appendMachine(machine, container, insertBeforeElement = null) {
 /**
  * Extends the production graph by adding input items, arrows, and machines recursively.
  *
- * @param {Object} recipe - The recipe object containing input items and other details.
- * @param {HTMLElement} container - The container element to which the graph elements will be appended.
- * @param {HTMLElement|null} insertBeforeElement - The element before which the new elements will be inserted,
+ * @param {Object} recipe The recipe object containing input items and other details.
+ * @param {number} productionPower The production power required for the output items.
+ * @param {HTMLElement} container The container element to which the graph elements will be appended.
+ * @param {HTMLElement|null} insertBeforeElement The element before which the new elements will be inserted,
  * or null to append at the end.
  */
-async function extendGraph(recipe, container, insertBeforeElement) {
+async function extendGraph(recipe, productionPower, container, insertBeforeElement) {
     if (recipe.input.length !== 0) {
         // Append an arrow element to the container
         const arrowInput = appendArrow(container, insertBeforeElement);
@@ -164,24 +204,33 @@ async function extendGraph(recipe, container, insertBeforeElement) {
 
             // Fetch and append the input item details from the API
             const inputItem = await fetchFromApi(`/getItem/${input.item_id}`);
+            const amount = calculateAmount(input.amount, productionPower);
 
-            if ((inputItem.display_name).includes('Waste')) {
-                await appendItem(inputItem, input, inputContainer.lastChild);
-            } else {
-                const appendedItem = await appendItem(inputItem, input, innerGraphContainer);
+            const appendedItem = await appendItem(inputItem, amount, innerGraphContainer);
 
-                if (inputItem.category !== 'Collectable') {
-                    // Append an arrow element to the container
-                    const appendedArrow = await appendArrow(innerGraphContainer, appendedItem);
+            if (inputItem.category !== 'Collectable' && !(inputItem.display_name).includes('Waste')) {
+                // Append an arrow element to the container
+                const appendedArrow = await appendArrow(innerGraphContainer, appendedItem);
 
-                    // Fetch the recipe and machine, and append the machine
-                    const inputRecipe = await fetchFromApi(`/getRecipeForItem/${input.item_id}`);
-                    const machineToAppend = await fetchFromApi(`/getMachine/${inputRecipe.produced_in}`);
-                    const appendedMachine = await appendMachine(machineToAppend, innerGraphContainer, appendedArrow);
+                // Fetch the recipe and machine
+                const inputRecipe = await fetchFromApi(`/getRecipeForItem/${input.item_id}`);
+                const machineToAppend = await fetchFromApi(`/getMachine/${inputRecipe.produced_in}`);
 
-                    // Recursively extend the graph if the input item is not a raw resource
-                    if (inputItem.category !== 'Raw Resources') await extendGraph(inputRecipe, innerGraphContainer, appendedMachine);
+                // Calculate the new production power
+                let newProductionPower = 0;
+                for (const output of inputRecipe.output) {
+                    if (output.item_id === input.item_id) {
+                        newProductionPower = calculateProductionPower(amount, output.amount);
+                        break;
+                    }
                 }
+
+                // Append the machine to the container
+                const machineQuantity = Math.ceil(newProductionPower);
+                const appendedMachine = await appendMachine(machineToAppend, machineQuantity, innerGraphContainer, appendedArrow);
+
+                // Recursively extend the graph if the input item is not a raw resource
+                if (inputItem.category !== 'Raw Resources') await extendGraph(inputRecipe, newProductionPower, innerGraphContainer, appendedMachine);
             }
         }
     }

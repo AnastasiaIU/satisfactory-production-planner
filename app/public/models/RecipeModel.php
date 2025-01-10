@@ -55,11 +55,8 @@ class RecipeModel extends BaseModel
 
         $query->execute([':itemId' => $itemId]);
         $recipe = $query->fetch(PDO::FETCH_ASSOC);
-        error_log('Recipe: ' . print_r($recipe, true));
         $recipe_outputs = $this->getRecipeOutputs($recipe['recipe_id']);
         $recipe_inputs = $this->getRecipeInputs($recipe['recipe_id']);
-
-        error_log('Recipe: ' . print_r($recipe_outputs, true));
 
         return new RecipeDTO(
             $recipe['recipe_id'],
