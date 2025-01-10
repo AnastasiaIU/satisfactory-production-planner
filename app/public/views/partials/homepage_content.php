@@ -2,7 +2,7 @@
     <section class="row flex-grow-1 column-gap-3 gap-3 m-3 p-0">
         <section class="card col d-flex flex-column m-0 p-0 flex-grow-1 overflow-scroll">
             <section class="p-3 d-flex flex-column flex-grow-1">
-                <section id="productionGraph" class="d-flex flex-column flex-grow-1 p-0 gap-5"></section>
+                <section id="productionGraph" class="d-flex flex-column flex-grow-1 p-0 pb-3 gap-5"></section>
             </section>
         </section>
         <aside class="col-md-4 d-flex flex-column p-0">

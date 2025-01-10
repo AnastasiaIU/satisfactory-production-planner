@@ -182,7 +182,7 @@ function addEventListenerToItemQuantity(listItem, dropdownItemsContainer, itemId
 function addOnClickEventToDropdownItems(dropdownItemsContainer) {
     const outputsList = document.getElementById("outputsList");
 
-    dropdownItemsContainer.addEventListener("click", (event) => {
+    dropdownItemsContainer.addEventListener("click", async (event) => {
         event.preventDefault();
 
         const target = event.target.closest(".dropdown-item");
@@ -199,7 +199,7 @@ function addOnClickEventToDropdownItems(dropdownItemsContainer) {
             // Append the new list item to the output list
             outputsList.appendChild(listItem);
 
-            displayProductionGraph(itemId);
+            await displayProductionGraph(itemId);
 
             addEventListenerToItemQuantity(listItem, dropdownItemsContainer, itemId);
         }

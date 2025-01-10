@@ -117,7 +117,8 @@ class RecipeService extends BaseService
                         // Count recipe output per minute
                         $amount = 60 / $item['mManufactoringDuration'] * $amount;
 
-                        if ($this->getItemForm($data, $item_id) === 'RF_LIQUID') $amount /= 1000;
+                        if ($this->getItemForm($data, $item_id) === 'RF_LIQUID' ||
+                            $this->getItemForm($data, $item_id) === 'RF_GAS') $amount /= 1000;
 
                         $is_alternative = $this->getIsAlternative(
                             $alternative_recipe_outputs,
@@ -178,7 +179,8 @@ class RecipeService extends BaseService
                         // Count recipe output per minute
                         $amount = 60 / $item['mManufactoringDuration'] * $amount;
 
-                        if ($this->getItemForm($data, $item_id) === 'RF_LIQUID') $amount /= 1000;
+                        if ($this->getItemForm($data, $item_id) === 'RF_LIQUID' ||
+                            $this->getItemForm($data, $item_id) === 'RF_GAS') $amount /= 1000;
 
                         $this->utilityRecipeModel->insertRecipeInput($recipe_id, $item_id, $amount);
                     }
