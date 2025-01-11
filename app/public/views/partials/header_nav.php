@@ -5,7 +5,7 @@
             <span class="h5 align-middle">Production Planner</span>
         </a>
         <div>
-            <a type="button" class="btn btn-primary" href="#">Login/Register</a>
+            <a type="button" class="btn btn-primary" href="/login">Login/Register</a>
         </div>
     </div>
 </nav>
