@@ -119,3 +119,11 @@ body {
 .quantity-input {
     width: 120px;
 }
+
+.show-element {
+    display: block;
+}
+
+.hide-element {
+    display: none;
+}

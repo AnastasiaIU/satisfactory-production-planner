@@ -11,6 +11,7 @@ async function displayProductionGraph(itemId) {
     if (!graphRow) {
         // Create containers
         graphRow = createContainer(productionGraphContainer, false);
+        graphRow.dataset.itemId = `${itemId}`;
         const outputContainer = createContainer(graphRow, true);
         outputContainer.classList.add("output-container");
 

@@ -64,9 +64,25 @@ function getItemVisibility(item, input) {
     const isInOutputList = item.querySelector(".dropdown-item").style.display === "none";
     const isVisible = matchesFilter && !isInOutputList;
 
-    item.style.display = isVisible ? "" : "none";
+    changeVisibility(item, isVisible);
 
     return isVisible;
+}
+
+/**
+ * Changes the visibility of an element based on the specified condition.
+ *
+ * @param {HTMLElement} element The element whose visibility is to be changed.
+ * @param {boolean} isVisible Indicates if the element should be visible or hidden.
+ */
+function changeVisibility(element, isVisible) {
+    if (isVisible) {
+        element.classList.remove("hide-element");
+        element.classList.add("show-element");
+    } else {
+        element.classList.remove("show-element");
+        element.classList.add("hide-element");
+    }
 }
 
 /**
@@ -110,7 +126,7 @@ function filterDropdown() {
             if (getItemVisibility(item, input)) hasVisibleItems = true;
         });
 
-        category.style.display = hasVisibleItems ? "" : "none";
+        changeVisibility(category, hasVisibleItems);
 
         if (hasVisibleItems) hasResults = true;
     });
@@ -153,10 +169,15 @@ function createListItem(itemId, itemIcon, itemName) {
 function addEventListenerToItemQuantity(listItem, dropdownItemsContainer, itemId) {
     const quantityInput = listItem.querySelector(".quantity-input");
 
-    quantityInput.addEventListener("change", () => {
+    quantityInput.addEventListener("change", async () => {
         let currentValue = parseFloat(quantityInput.value) || 0;
 
         if (currentValue < 0) currentValue = 0;
+
+        // Remove the corresponding production graph
+        const productionGraphContainer = document.getElementById("productionGraph");
+        const graphElement = productionGraphContainer.querySelector(`[data-item-id="${itemId}"]`);
+        graphElement.remove();
 
         if (currentValue === 0) {
             // Remove the item from outputs
@@ -164,12 +185,9 @@ function addEventListenerToItemQuantity(listItem, dropdownItemsContainer, itemId
 
             // Show the corresponding item in the dropdown again
             const dropdownItem = dropdownItemsContainer.querySelector(`[data-item-id="${itemId}"]`);
-            if (dropdownItem) dropdownItem.style.display = "";
-
-            // Remove the corresponding production graph
-            const productionGraphContainer = document.getElementById("productionGraph");
-            const graphElement = productionGraphContainer.querySelector(`[data-item-id="${itemId}"]`);
-            if (graphElement) graphElement.remove();
+            changeVisibility(dropdownItem, true);
+        } else {
+            await displayProductionGraph(itemId);
         }
     });
 }
@@ -195,7 +213,7 @@ function addOnClickEventToDropdownItems(dropdownItemsContainer) {
             const listItem = createListItem(itemId, itemIcon, itemName);
 
             // Hide the dropdown item
-            target.style.display = "none";
+            changeVisibility(target, false);
 
             // Append the new list item to the output list
             outputsList.appendChild(listItem);
