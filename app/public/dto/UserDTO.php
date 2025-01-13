@@ -16,4 +16,14 @@ class UserDTO
         $this->password = $password;
     }
 
+    /**
+     * Verifies if the provided password matches the stored hashed password.
+     *
+     * @param string $password The plain text password to verify.
+     * @return bool True if the password matches, false otherwise.
+     */
+    public function verifyPassword(string $password): bool
+    {
+        return password_verify($password, $this->password);
+    }
 }

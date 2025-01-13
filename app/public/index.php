@@ -31,6 +31,7 @@ require_once(__DIR__ . '/routes/item.php');
 require_once(__DIR__ . '/routes/recipe.php');
 require_once(__DIR__ . '/routes/machine.php');
 require_once(__DIR__ . '/routes/login.php');
+require_once(__DIR__ . '/routes/logout.php');
 require_once(__DIR__ . '/routes/register.php');
 
 // run router

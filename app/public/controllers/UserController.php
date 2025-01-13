@@ -17,27 +17,6 @@ class UserController extends BaseController
     }
 
     /**
-     * Retrieves a user by their email.
-     *
-     * @param string $email The email of the user to retrieve.
-     * @return UserDTO|null The data transfer object representing the user or null if the user is not found.
-     */
-    public function getUser(string $email): ?UserDTO
-    {
-        return $this->userModel->getUser($email);
-    }
-
-    /**
-     * Creates a new user in the database.
-     *
-     * @param string $email The email of the user to create.
-     * @param string $password The password of the user to create.
-     */
-    public function createUser(string $email, string $password): void {
-        $this->userModel->createUser($email, $password);
-    }
-
-    /**
      * Registers a new user.
      *
      * @param string $email The email of the user to register.
@@ -46,7 +25,7 @@ class UserController extends BaseController
     public function registerUser(string $email, string $password): void
     {
         // Retrieve the user by email
-        $user = $this->getUser($email);
+        $user = $this->userModel->getUser($email);
 
         // Check if the user already exists
         if ($user !== null) {
@@ -57,11 +36,50 @@ class UserController extends BaseController
         } else {
             // Hash the password and save the user to the database
             $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
-            $this->createUser($email, $hashedPassword);
+            $this->userModel->createUser($email, $hashedPassword);
 
             // Set logged-in user in session and redirect to home page
             $_SESSION['user'] = $user;
             header('Location: /');
         }
+    }
+
+    /**
+     * Attempts to log in a user with the provided email and password.
+     *
+     * @param string $email The email of the user attempting to log in.
+     * @param string $password The password of the user attempting to log in.
+     */
+    public function attemptLogin(string $email, string $password): void
+    {
+        // Retrieve the user by email
+        $user = $this->userModel->getUser($email);
+
+        // Check if the user exists
+        if ($user === null) {
+            $this->setErrorMessageInSession($email, $password);
+        } else {
+            if ($user->verifyPassword($password)) {
+                // Set logged-in user in session and redirect to home page
+                $_SESSION['user'] = $user;
+                header('Location: /');
+            } else {
+                $this->setErrorMessageInSession($email, $password);
+            }
+        }
+    }
+
+    /**
+     * Sets an error message and form data in the session.
+     *
+     * @param string $email The email of the user.
+     * @param string $password The password of the user.
+     * @return void
+     */
+    public function setErrorMessageInSession(string $email, string $password): void
+    {
+        $_SESSION['login_error'] = 'Wrong email or password. Please, try again.';
+        $_SESSION['login_form_data'] = ['email' => $email, 'password' => $password];
+        http_response_code(400);
     }
 }

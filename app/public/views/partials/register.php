@@ -10,18 +10,15 @@
             <div class="d-flex flex-column gap-3 mb-2">
                 <div class="form-group">
                     <label for="inputEmail">Email address</label>
-                    <?php if (isset($formData['email'])): ?>
-                        <input type="email" name="email" class="form-control" id="inputEmail"
-                               aria-describedby="emailHelp"
-                               placeholder="Enter email"
-                               value="<?= htmlspecialchars($formData['email']) ?>" required>
-                        <div class="invalid-feedback" id="inputEmailPrompt">
-                            <?= htmlspecialchars($error) ?>
-                        </div>
+                    <input type="email" name="email" class="form-control" id="inputEmail"
+                           aria-describedby="emailHelp" placeholder="Enter email"
+                        <?php if (isset($formData['email'])): ?>
+                           value="<?= htmlspecialchars($formData['email']) ?>" required>
+                    <div class="invalid-feedback" id="inputEmailPrompt">
+                        <?= htmlspecialchars($error) ?>
+                    </div>
                     <?php else: ?>
-                        <input type="email" name="email" class="form-control" id="inputEmail"
-                               aria-describedby="emailHelp"
-                               placeholder="Enter email" required>
+                        required>
                         <div class="invalid-feedback" id="inputEmailPrompt">
                             Invalid email.
                         </div>

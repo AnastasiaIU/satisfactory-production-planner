@@ -3,11 +3,18 @@
  */
 document.addEventListener("DOMContentLoaded", () => {
     if (window.location.pathname === '/') {
+        setCurrentNavItem('nav-item-planner');
         initDropdown();
     }
 
     if (window.location.pathname === '/register') {
+        setCurrentNavItem('');
         initRegisterForm();
+    }
+
+    if (window.location.pathname === '/login') {
+        setCurrentNavItem('');
+        initLoginForm();
     }
 
     enableBootstrapFormValidation();
@@ -33,4 +40,20 @@ function enableBootstrapFormValidation() {
             }, false);
         });
     }, false);
+}
+
+/**
+ * Sets the current navigation item as active based on the provided ID.
+ *
+ * @param {string} id The ID of the navigation item to set as active.
+ */
+function setCurrentNavItem(id) {
+    const navItems = document.querySelectorAll('.nav-link');
+    navItems.forEach(item => {
+        if (item.id === id) {
+            item.classList.add('active');
+        } else {
+            item.classList.remove('active');
+        }
+    });
 }
