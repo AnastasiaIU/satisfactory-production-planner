@@ -9,7 +9,7 @@
             <section class="card d-flex flex-column flex-grow-1">
                 <div id="outputsDropdown" class="dropdown d-flex justify-content-between align-items-center p-2">
                     <p class="h5 m-0">Outputs</p>
-                    <a id="addItemBtn" class="btn btn-secondary dropdown-toggle" href="#" role="button"
+                    <a id="addItemBtn" class="btn btn-secondary dropdown-toggle" role="button"
                        data-bs-toggle="dropdown"
                        aria-expanded="false">
                         Add item

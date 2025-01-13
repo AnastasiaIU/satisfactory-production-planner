@@ -19,6 +19,8 @@
     <script src="/assets/js/base.js"></script>
     <script src="/assets/js/graph.js"></script>
     <script src="/assets/js/dropdown.js"></script>
+    <script src="/assets/js/login.js"></script>
+    <script src="/assets/js/register.js"></script>
     <script src="/assets/js/main.js"></script>
 </head>
 

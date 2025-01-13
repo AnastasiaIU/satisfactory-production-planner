@@ -17,6 +17,18 @@ const categoryOrder = [
 ];
 
 /**
+ * Initializes the dropdown by exposing the filter function globally and adding necessary event listeners.
+ */
+function initDropdown() {
+    // Expose filter function globally for inline `onkeyup`
+    window.filterDropdown = filterDropdown;
+
+    addClearDropdownOnClose();
+    addOnClickEventToAddItemBtn();
+    addOnClickEventToDropdownItems();
+}
+
+/**
  * Sets up an event listener to clear the search input and reset the dropdown items when the dropdown is closed.
  */
 function addClearDropdownOnClose() {
@@ -196,9 +208,9 @@ function addEventListenerToItemQuantity(listItem, dropdownItemsContainer, itemId
  * Adds a click event listener to the dropdown items container.
  * Handles the creation of a new list item in the output list and hides the clicked dropdown item.
  *
- * @param {HTMLElement} dropdownItemsContainer The container element for the dropdown items.
  */
-function addOnClickEventToDropdownItems(dropdownItemsContainer) {
+function addOnClickEventToDropdownItems() {
+    const dropdownItemsContainer = document.getElementById("dropdownItems");
     const outputsList = document.getElementById("outputsList");
 
     dropdownItemsContainer.addEventListener("click", async (event) => {
@@ -259,7 +271,7 @@ function createDropdownItem(item, dropdownItemsContainer) {
  * Adds an event listener to the "Add Item" button to fetch and display producible items in the dropdown.
  * Groups and sorts the items by category and display order.
  */
-function addOnClickToAddItemBtn() {
+function addOnClickEventToAddItemBtn() {
     const addItemBtn = document.getElementById("addItemBtn");
     const dropdownItemsContainer = document.getElementById("dropdownItems");
 
