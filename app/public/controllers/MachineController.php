@@ -1,6 +1,5 @@
 <?php
 
-require_once(__DIR__ . '/BaseController.php');
 require_once(__DIR__ . '/../models/MachineModel.php');
 require_once(__DIR__ . '/../services/MachineService.php');
 require_once (__DIR__ . '/../dto/MachineDTO.php');
@@ -8,8 +7,9 @@ require_once (__DIR__ . '/../dto/MachineDTO.php');
 /**
  * Controller class for handling machine-related operations.
  */
-class MachineController extends BaseController
+class MachineController
 {
+    protected const INITIAL_DATASET = __DIR__ . '/../../private/assets/datasets/en-GB.json';
     private MachineModel $machineModel;
     private MachineService $machineService;
 

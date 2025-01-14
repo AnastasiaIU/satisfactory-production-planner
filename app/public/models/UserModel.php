@@ -21,7 +21,7 @@ class UserModel extends BaseModel
                     FROM USER
                     WHERE email = :email'
         );
-        $query->execute(['email' => $email]);
+        $query->execute([':email' => $email]);
         $item = $query->fetch(PDO::FETCH_ASSOC);
 
         if (!$item) {

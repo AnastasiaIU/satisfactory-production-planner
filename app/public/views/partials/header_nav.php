@@ -19,7 +19,7 @@
                 <li class="nav-item">
                     <a class="nav-link fs-6 fw-bold text-white
                     <?php if (isset($_SESSION['user'])): ?>
-                   " id="nav-item-plans" href="/">My Plans</a>
+                   " id="nav-item-plans" href="/plans">My Plans</a>
                     <?php else: ?>
                         disabled" id="nav-item-plans" href="/">My Plans</a>
                     <?php endif; ?>

@@ -5,7 +5,7 @@
  */
 class UserDTO
 {
-    private readonly string $id;
+    public readonly string $id;
     private readonly string $email;
     private readonly string $password;
 

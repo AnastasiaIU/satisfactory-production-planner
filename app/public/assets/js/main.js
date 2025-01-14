@@ -1,10 +1,10 @@
 /**
  * Initializes event listeners and functions when the DOM content is fully loaded.
  */
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
     if (window.location.pathname === '/') {
         setCurrentNavItem('nav-item-planner');
-        initDropdown();
+        await initDropdown();
     }
 
     if (window.location.pathname === '/register') {
@@ -15,6 +15,10 @@ document.addEventListener("DOMContentLoaded", () => {
     if (window.location.pathname === '/login') {
         setCurrentNavItem('');
         initLoginForm();
+    }
+
+    if (window.location.pathname === '/plans') {
+        setCurrentNavItem('nav-item-plans');
     }
 
     enableBootstrapFormValidation();

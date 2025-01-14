@@ -33,6 +33,7 @@ require_once(__DIR__ . '/routes/machine.php');
 require_once(__DIR__ . '/routes/login.php');
 require_once(__DIR__ . '/routes/logout.php');
 require_once(__DIR__ . '/routes/register.php');
+require_once(__DIR__ . '/routes/plans.php');
 
 // run router
 Route::run();

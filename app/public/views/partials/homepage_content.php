@@ -29,8 +29,38 @@
                     </ul>
                 </div>
                 <hr class="mb-2 mt-0">
-                <ul id="outputsList" class="list-group flex-grow-1 border-0"></ul>
+                <form class="d-flex flex-column needs-validation" id="planForm" method="post" novalidate>
+                    <div id="savePlan" <?php if (!isset($_SESSION['user'])): ?>
+                        class="disabled"
+                    <?php endif; ?>
+                    >
+                        <div class="d-flex flex-wrap p-2 pt-0 gap-2 align-items-center justify-content-between">
+                            <div class="form-group">
+                                <input type="text" name="planName" class="form-control" id="planName"
+                                       placeholder="Enter name for the plan" aria-label="Plan name"
+                                    <?php if (isset($planName)): ?>
+                                       value="<?= htmlspecialchars($planName) ?>" required>
+                                <div class="invalid-feedback" id="planNamePrompt">
+                                    <?= htmlspecialchars($planError) ?>
+                                </div>
+                                <?php else: ?>
+                                    required>
+                                    <div class="invalid-feedback" id="planNamePrompt">
+                                        Name cannot be empty.
+                                    </div>
+                                <?php endif; ?>
+                            </div>
+                            <button type="submit" class="btn btn-primary" id="savePlanBtn">Save plan</button>
+                        </div>
+                        <hr class="mb-2 mt-0">
+                    </div>
+                    <ul id="outputsList" class="list-group flex-grow-1 border-0"></ul>
+                </form>
             </section>
         </aside>
     </section>
 </main>
+<script>
+    // Pass the PHP variable to JavaScript
+    const planFormData = JSON.parse('<?php echo json_encode($planFormData); ?>');
+</script>

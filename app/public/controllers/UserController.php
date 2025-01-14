@@ -1,13 +1,12 @@
 <?php
 
-require_once(__DIR__ . '/BaseController.php');
 require_once(__DIR__ . '/../models/UserModel.php');
 require_once(__DIR__ . '/../dto/UserDTO.php');
 
 /**
  * Controller class for handling user-related operations.
  */
-class UserController extends BaseController
+class UserController
 {
     private UserModel $userModel;
 
@@ -38,9 +37,8 @@ class UserController extends BaseController
             $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
             $this->userModel->createUser($email, $hashedPassword);
 
-            // Set logged-in user in session and redirect to home page
-            $_SESSION['user'] = $user;
-            header('Location: /');
+            $_SESSION['login_user_created'] = 'User created successfully. Please log in.';
+            header('Location: /login');
         }
     }
 
@@ -61,7 +59,7 @@ class UserController extends BaseController
         } else {
             if ($user->verifyPassword($password)) {
                 // Set logged-in user in session and redirect to home page
-                $_SESSION['user'] = $user;
+                $_SESSION['user'] = $user->id;
                 header('Location: /');
             } else {
                 $this->setErrorMessageInSession($email, $password);
@@ -74,7 +72,6 @@ class UserController extends BaseController
      *
      * @param string $email The email of the user.
      * @param string $password The password of the user.
-     * @return void
      */
     public function setErrorMessageInSession(string $email, string $password): void
     {

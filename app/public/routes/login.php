@@ -6,7 +6,8 @@ require_once(__DIR__ . '/../controllers/UserController.php');
 Route::add('/login', function () {
     $loginError = $_SESSION['login_error'] ?? null;
     $loginFormData = $_SESSION['login_form_data'] ?? [];
-    unset($_SESSION['login_error'], $_SESSION['login_form_data']);
+    $loginUserCreated = $_SESSION['login_user_created'] ?? null;
+    unset($_SESSION['login_error'], $_SESSION['login_form_data'], $_SESSION['login_user_created']);
 
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Sanitize input
@@ -18,8 +19,6 @@ Route::add('/login', function () {
 
         if (http_response_code() === 400) {
             header('Location: /login');
-        } else {
-            header('Location: /');
         }
     } else {
         require_once(__DIR__ . '/../views/pages/login.php');

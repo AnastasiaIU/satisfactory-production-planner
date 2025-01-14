@@ -18,8 +18,6 @@ Route::add('/register', function () {
 
         if (http_response_code() === 400) {
             header('Location: /register');
-        } else {
-            header('Location: /');
         }
     } else {
         require_once(__DIR__ . '/../views/pages/register.php');

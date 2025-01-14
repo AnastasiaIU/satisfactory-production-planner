@@ -46,4 +46,9 @@
             <p>Don't have an account? <a class="link-opacity-75-hover" href="/register">Sign up</a>.</p>
         </form>
     </section>
+    <?php if (isset($loginUserCreated)): ?>
+    <div class="alert alert-success col-md-6 col-lg-5 col-xl-4" role="alert">
+        <?= htmlspecialchars($loginUserCreated) ?>
+    </div>
+    <?php endif; ?>
 </main>

@@ -1,14 +1,14 @@
 <?php
 
-require_once(__DIR__ . '/BaseController.php');
 require_once(__DIR__ . '/../models/RecipeModel.php');
 require_once(__DIR__ . '/../services/RecipeService.php');
 
 /**
  * Controller class for handling recipe-related operations.
  */
-class RecipeController extends BaseController
+class RecipeController
 {
+    protected const INITIAL_DATASET = __DIR__ . '/../../private/assets/datasets/en-GB.json';
     private RecipeModel $recipeModel;
     private RecipeService $recipeService;
 

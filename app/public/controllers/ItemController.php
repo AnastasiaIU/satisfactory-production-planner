@@ -1,6 +1,5 @@
 <?php
 
-require_once(__DIR__ . '/BaseController.php');
 require_once(__DIR__ . '/../models/ItemModel.php');
 require_once(__DIR__ . '/../services/ItemService.php');
 require_once(__DIR__ . '/../dto/ItemDTO.php');
@@ -8,8 +7,9 @@ require_once(__DIR__ . '/../dto/ItemDTO.php');
 /**
  * Controller class for handling item-related operations.
  */
-class ItemController extends BaseController
+class ItemController
 {
+    protected const INITIAL_DATASET = __DIR__ . '/../../private/assets/datasets/en-GB.json';
     private ItemModel $itemModel;
     private ItemService $itemService;
 
