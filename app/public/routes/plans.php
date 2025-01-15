@@ -45,3 +45,36 @@ Route::add('/plan/([a-zA-Z0-9_-]*)', function ($planId) {
     $_SESSION['plan'] = $plan;
     header("Location: /");
 });
+
+// API route for fetching the production plan by its ID
+Route::add('/getPlan/([a-zA-Z0-9_-]*)', function ($planId) {
+    $planController = new PlanController();
+    $plan = $planController->getProductionPlan($planId);
+    echo json_encode($plan);
+});
+
+// API route for importing a production plan
+Route::add('/importPlan', function () {
+    AuthHandler::checkUserLoggedIn();
+
+    $plan = json_decode(file_get_contents('php://input'), true);
+
+    if ($plan) {
+        $planController = new PlanController();
+        $planController->createProductionPlan($plan['created_by'], $plan['display_name'], $plan['items']);
+        echo json_encode(['status' => 'success']);
+    } else {
+        echo json_encode(['status' => 'error', 'message' => 'Invalid data']);
+    }
+}, ['post']);
+
+// API route for logging import errors
+Route::add('/logImportError', function () {
+    AuthHandler::checkUserLoggedIn();
+
+    $errorData = json_decode(file_get_contents('php://input'), true);
+
+    if (isset($errorData['error'])) {
+        $_SESSION['plan_error'] = $errorData['error'];
+    }
+}, ['post']);
