@@ -67,9 +67,9 @@ class PlanModel extends BaseModel
      * Retrieves a production plan by its ID.
      *
      * @param string $planId The ID of the production plan to retrieve.
-     * @return PlanDTO The data transfer object representing the production plan.
+     * @return PlanDTO|null The data transfer object representing the production plan or null if the plan is not found.
      */
-    public function getProductionPlan(string $planId): PlanDTO
+    public function getProductionPlan(string $planId): ?PlanDTO
     {
         $query = self::$pdo->prepare(
             'SELECT id, created_by, display_name
@@ -78,37 +78,12 @@ class PlanModel extends BaseModel
         );
         $query->execute(['planId' => $planId]);
         $plan = $query->fetch(PDO::FETCH_ASSOC);
-        $items = $this->getPlanItems($planId);
-
-        return new PlanDTO(
-            $plan['id'],
-            $plan['created_by'],
-            $plan['display_name'],
-            $items
-        );
-    }
-
-    /**
-     * Retrieves a production plan by its name.
-     *
-     * @param string $planName The name of the production plan to retrieve.
-     * @return PlanDTO|null The data transfer object representing the production plan or null the plan is not found.
-     */
-    public function getProductionPlanByName(string $planName): ?PlanDTO
-    {
-        $query = self::$pdo->prepare(
-            'SELECT id, created_by, display_name
-                    FROM `PRODUCTION PLAN`
-                    WHERE display_name = :planName'
-        );
-        $query->execute(['planName' => $planName]);
-        $plan = $query->fetch(PDO::FETCH_ASSOC);
 
         if (!$plan) {
             return null;
         }
 
-        $items = $this->getPlanItems($plan['id']);
+        $items = $this->getPlanItems($planId);
 
         return new PlanDTO(
             $plan['id'],

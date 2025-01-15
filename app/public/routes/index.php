@@ -19,26 +19,31 @@ Route::add('/', function () {
     if (!$recipeController->isRecipeInputTableEmpty()) file_get_contents($_ENV['BASE_URL'] . '/loadRecipeInputsFromJson');
 
     $planError = $_SESSION['plan_error'] ?? null;
-    $planName = $_SESSION['plan_name'] ?? null;
-    $planFormData = $_SESSION['plan_form_data'] ?? [];
-    unset($_SESSION['plan_error'], $_SESSION['plan_name'], $_SESSION['plan_form_data']);
+    $plan = $_SESSION['plan'] ?? null;
+    unset($_SESSION['plan_error'], $_SESSION['plan']);
 
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Sanitize input
+        $planId = null;
         $name = '';
         $items = [];
         foreach ($_POST as $key => $value) {
-            if ($key === 'planName') {
-                $name = htmlspecialchars(trim($value));
-            } else {
+            $name = $key === 'planName' ? htmlspecialchars(trim($value)) : $name;
+            $planId = $key === 'createPlanId' ? htmlspecialchars(trim($value)) : $planId;
+            if ($key !== 'planName' && $key !== 'createPlanId') {
                 $items[$key] = htmlspecialchars(trim($value));
             }
         }
 
         $planController = new PlanController();
-        $planController->createProductionPlan($_SESSION['user'], $name, $items);
 
-        if (http_response_code() === 400 || http_response_code() === 500) {
+        if ($planId) {
+            $planController->updateProductionPlan($planId, $name, $items);
+        } else {
+            $planController->createProductionPlan($_SESSION['user'], $name, $items);
+        }
+
+        if (http_response_code() === 500) {
             header('Location: /');
         }
     } else {

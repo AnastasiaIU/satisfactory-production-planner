@@ -35,22 +35,25 @@
                     <?php endif; ?>
                     >
                         <div class="d-flex flex-wrap p-2 pt-0 gap-2 align-items-center justify-content-between">
+                            <input type="hidden" name="createPlanId" id="createPlanId">
                             <div class="form-group">
                                 <input type="text" name="planName" class="form-control" id="planName"
-                                       placeholder="Enter name for the plan" aria-label="Plan name"
-                                    <?php if (isset($planName)): ?>
-                                       value="<?= htmlspecialchars($planName) ?>" required>
+                                       placeholder="Enter name for the plan" aria-label="Plan name" required>
                                 <div class="invalid-feedback" id="planNamePrompt">
-                                    <?= htmlspecialchars($planError) ?>
-                                </div>
-                                <?php else: ?>
-                                    required>
-                                    <div class="invalid-feedback" id="planNamePrompt">
+                                    <?php if (isset($planError)): ?>
+                                        <?= htmlspecialchars($planError) ?>
+                                    <?php else: ?>
                                         Name cannot be empty.
-                                    </div>
-                                <?php endif; ?>
+                                    <?php endif; ?>
+                                </div>
                             </div>
-                            <button type="submit" class="btn btn-primary" id="savePlanBtn">Save plan</button>
+                            <button type="submit" class="btn btn-primary" id="savePlanBtn">
+                                <?php if (isset($plan)): ?>
+                                    Update plan
+                                <?php else: ?>
+                                    Create new plan
+                                <?php endif; ?>
+                            </button>
                         </div>
                         <hr class="mb-2 mt-0">
                     </div>
@@ -60,7 +63,9 @@
         </aside>
     </section>
 </main>
-<script>
-    // Pass the PHP variable to JavaScript
-    const planFormData = JSON.parse('<?php echo json_encode($planFormData); ?>');
-</script>
+<?php if (isset($plan)): ?>
+    <script>
+        // Pass the PHP variable to JavaScript
+        const plan = JSON.parse('<?php echo json_encode($plan); ?>');
+    </script>
+<?php endif; ?>

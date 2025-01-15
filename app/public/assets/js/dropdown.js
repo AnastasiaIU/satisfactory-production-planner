@@ -1,46 +1,46 @@
 // The order in which categories should be displayed in the dropdown
 const categoryOrder = [
-    "Raw Resources",
-    "Tier 0",
-    "Tier 2",
-    "Tier 3",
-    "Tier 4",
-    "Tier 5",
-    "Tier 6",
-    "Tier 7",
-    "Tier 8",
-    "Tier 9",
-    "MAM",
-    "Equipment"
+    'Raw Resources',
+    'Tier 0',
+    'Tier 2',
+    'Tier 3',
+    'Tier 4',
+    'Tier 5',
+    'Tier 6',
+    'Tier 7',
+    'Tier 8',
+    'Tier 9',
+    'MAM',
+    'Equipment'
 ];
 
 /**
  * Initializes the dropdown by exposing the filter function globally and adding necessary event listeners.
  */
 async function initDropdown() {
+    const dropdownItemsContainer = document.getElementById('dropdownItems');
+    const outputsList = document.getElementById('outputsList');
+
     // Expose filter function globally for inline `onkeyup`
     window.filterDropdown = filterDropdown;
 
     addClearDropdownOnClose();
-    await loadDropdownItems();
-    addOnClickEventToDropdownItems();
+    await loadDropdownItems(dropdownItemsContainer);
+    addOnClickEventToDropdownItems(dropdownItemsContainer, outputsList);
 
     const form = document.getElementById('planForm');
     const planName = document.getElementById('planName');
 
-    // If the planFormData is not empty, append the items to the outputs list
-    if (planFormData.length !== 0) {
-        planName.setCustomValidity('Plan with this name already exists.');
-        form.classList.add('was-validated');
-        const outputsList = document.getElementById('outputsList');
-        const dropdownItemsContainer = document.getElementById("dropdownItems");
-        for (const item in planFormData) {
-            const dropdownElement = document.querySelector(`[data-item-id="${item}"]`);
-            await appendItemToOutputsList(dropdownElement, outputsList, dropdownItemsContainer, parseFloat(planFormData[item][0]));
+    // Load a plan if it is provided
+    if (typeof plan !== 'undefined') {
+        planName.value = plan.display_name;
+        for (const [itemId, amount] of Object.entries(plan.items)) {
+            const dropdownElement = document.querySelector(`[data-item-id="${itemId}"]`);
+            await appendItemToOutputsList(dropdownElement, outputsList, dropdownItemsContainer, parseFloat(amount));
         }
     }
 
-    addEventListenerToPlanForm(form, planName);
+    addEventListenerToPlanForm(form, planName, outputsList);
 }
 
 /**
@@ -48,11 +48,16 @@ async function initDropdown() {
  *
  * @param {HTMLFormElement} form - The production plan form element.
  * @param {HTMLInputElement} planName The plan name input field.
+ * @param {HTMLInputElement} outputsList The list of output items in the production graph.
  */
-function addEventListenerToPlanForm(form, planName) {
+function addEventListenerToPlanForm(form, planName, outputsList) {
     form.addEventListener('submit', function (event) {
-        const outputsList = document.getElementById('outputsList');
         const planNamePrompt = document.getElementById('planNamePrompt');
+        const planId = document.getElementById('createPlanId');
+
+        if (typeof plan !== 'undefined') {
+            planId.value = plan.id;
+        }
 
         // Reset the plan name validation message
         planNamePrompt.innerHTML = 'Name cannot be empty.';
@@ -83,13 +88,13 @@ function addEventListenerToPlanForm(form, planName) {
  * Sets up an event listener to clear the search input and reset the dropdown items when the dropdown is closed.
  */
 function addClearDropdownOnClose() {
-    const dropdown = document.getElementById("outputsDropdown");
-    const searchInput = document.getElementById("dropdownSearch");
+    const dropdown = document.getElementById('outputsDropdown');
+    const searchInput = document.getElementById('dropdownSearch');
 
     // Add an event listener to clear the search input and reset the dropdown items when the dropdown is closed
     dropdown.addEventListener("hide.bs.dropdown", () => {
         if (searchInput) {
-            searchInput.value = "";
+            searchInput.value = '';
             filterDropdown(); // Reset the dropdown items
         }
     });
@@ -106,7 +111,7 @@ function getCategoryItems(category) {
     let nextElement = category.nextElementSibling;
 
     // Collect all items under this category
-    while (nextElement && nextElement.tagName === "LI") {
+    while (nextElement && nextElement.tagName === 'LI') {
         categoryItems.push(nextElement);
         nextElement = nextElement.nextElementSibling;
     }
@@ -124,7 +129,7 @@ function getCategoryItems(category) {
 function getItemVisibility(item, input) {
     const text = item.textContent || item.innerText;
     const matchesFilter = text.toLowerCase().includes(input);
-    const isInOutputList = item.querySelector(".dropdown-item").style.display === "none";
+    const isInOutputList = item.querySelector(".dropdown-item").style.display === 'none';
     const isVisible = matchesFilter && !isInOutputList;
 
     changeVisibility(item, isVisible);
@@ -140,11 +145,11 @@ function getItemVisibility(item, input) {
  */
 function changeVisibility(element, isVisible) {
     if (isVisible) {
-        element.classList.remove("hide-element");
-        element.classList.add("show-element");
+        element.classList.remove('hide-element');
+        element.classList.add('show-element');
     } else {
-        element.classList.remove("show-element");
-        element.classList.add("hide-element");
+        element.classList.remove('show-element');
+        element.classList.add('hide-element');
     }
 }
 
@@ -155,13 +160,13 @@ function changeVisibility(element, isVisible) {
  * @param {HTMLElement} dropdownItemsContainer The container element for the dropdown items.
  */
 function toggleNoResultsMessage(hasResults, dropdownItemsContainer) {
-    const noResultsMessage = document.getElementById("noResultsMessage");
+    const noResultsMessage = document.getElementById('noResultsMessage');
     if (!hasResults) {
         if (!noResultsMessage) {
-            const message = document.createElement("div");
-            message.id = "noResultsMessage";
-            message.className = "text-center text-muted mt-2";
-            message.innerText = "No results found.";
+            const message = document.createElement('div');
+            message.id = 'noResultsMessage';
+            message.className = 'text-center text-muted mt-2';
+            message.innerText = 'No results found.';
             dropdownItemsContainer.appendChild(message);
         }
     } else {
@@ -176,8 +181,8 @@ function toggleNoResultsMessage(hasResults, dropdownItemsContainer) {
  * Also displays or hides a "no results found" message based on the search results.
  */
 function filterDropdown() {
-    const input = document.getElementById("dropdownSearch").value.toLowerCase();
-    const dropdownItemsContainer = document.getElementById("dropdownItems");
+    const input = document.getElementById('dropdownSearch').value.toLowerCase();
+    const dropdownItemsContainer = document.getElementById('dropdownItems');
     const categories = dropdownItemsContainer.querySelectorAll(".dropdown-header");
     let hasResults = false;
 
@@ -207,15 +212,15 @@ function filterDropdown() {
  * @returns {HTMLElement} The created list item element.
  */
 function createListItem(itemId, itemIcon, itemName, amount) {
-    const listItem = document.createElement("li");
-    listItem.className = "list-group-item card d-flex flex-column align-items-start border-0 pt-0";
+    const listItem = document.createElement('li');
+    listItem.className = 'list-group-item card d-flex flex-column align-items-start border-0 pt-0';
     listItem.innerHTML = `
-        <div class="d-flex align-items-center">
-            <img src="${itemIcon}" alt="icon" style="width: 50px; height: 50px; margin-right: 10px;">
+        <div class='d-flex align-items-center'>
+            <img src="${itemIcon}" alt='icon' style="width: 50px; height: 50px; margin-right: 10px;">
             <span>${itemName}</span>
         </div>
-        <div class="d-flex align-items-center p-0">
-            <input type="number" name="${itemId}" class="form-control text-center quantity-input mt-1" value="${amount}" min="0" step="0.1" aria-label="${itemName} amount" data-item-id="${itemId}">
+        <div class='d-flex align-items-center p-0'>
+            <input type='number' name="${itemId}" class='form-control text-center quantity-input mt-1' value="${amount}" min='0' step='0.1' aria-label="${itemName} amount" data-item-id="${itemId}">
         </div>
     `;
 
@@ -233,13 +238,13 @@ function createListItem(itemId, itemIcon, itemName, amount) {
 function addEventListenerToItemQuantity(listItem, dropdownItemsContainer, itemId) {
     const quantityInput = listItem.querySelector(".quantity-input");
 
-    quantityInput.addEventListener("change", async () => {
+    quantityInput.addEventListener('change', async () => {
         let currentValue = parseFloat(quantityInput.value) || 0;
 
         if (currentValue < 0) currentValue = 0;
 
         // Remove the corresponding production graph
-        const productionGraphContainer = document.getElementById("productionGraph");
+        const productionGraphContainer = document.getElementById('productionGraph');
         const graphElement = productionGraphContainer.querySelector(`[data-item-id="${itemId}"]`);
         graphElement.remove();
 
@@ -261,11 +266,8 @@ function addEventListenerToItemQuantity(listItem, dropdownItemsContainer, itemId
  * Handles the creation of a new list item in the output list and hides the clicked dropdown item.
  *
  */
-function addOnClickEventToDropdownItems() {
-    const dropdownItemsContainer = document.getElementById("dropdownItems");
-    const outputsList = document.getElementById("outputsList");
-
-    dropdownItemsContainer.addEventListener("click", async (event) => {
+function addOnClickEventToDropdownItems(dropdownItemsContainer, outputsList) {
+    dropdownItemsContainer.addEventListener('click', async (event) => {
         event.preventDefault();
 
         const target = event.target.closest(".dropdown-item");
@@ -287,7 +289,7 @@ function addOnClickEventToDropdownItems() {
 async function appendItemToOutputsList(dropdownElement, outputsList, dropdownContainer, amount = 1) {
     const itemId = dropdownElement.dataset.itemId;
     const itemName = dropdownElement.innerText.trim();
-    const itemIcon = dropdownElement.querySelector("img")?.src || "";
+    const itemIcon = dropdownElement.querySelector('img')?.src || '';
     const listItem = createListItem(itemId, itemIcon, itemName, amount);
 
     // Hide the dropdown item
@@ -308,8 +310,8 @@ async function appendItemToOutputsList(dropdownElement, outputsList, dropdownCon
  * @param {HTMLElement} dropdownItemsContainer The container element for the dropdown items.
  */
 function addCategoryHeader(category, dropdownItemsContainer) {
-    const header = document.createElement("h6");
-    header.className = "dropdown-header";
+    const header = document.createElement('h6');
+    header.className = 'dropdown-header';
     header.textContent = category;
     dropdownItemsContainer.appendChild(header);
 }
@@ -321,10 +323,10 @@ function addCategoryHeader(category, dropdownItemsContainer) {
  * @param {HTMLElement} dropdownItemsContainer The container element for the dropdown items.
  */
 function createDropdownItem(item, dropdownItemsContainer) {
-    const li = document.createElement("li");
+    const li = document.createElement('li');
     li.innerHTML = `
-                    <a class="dropdown-item" data-item-id="${item.id}">
-                        <img src="/assets/images/${item.icon_name}" alt="icon"
+                    <a class='dropdown-item' data-item-id="${item.id}">
+                        <img src="/assets/images/${item.icon_name}" alt='icon'
                              style="width: 50px; height: 50px; margin-right: 10px;">
                         ${item.display_name}
                     </a>`;
@@ -336,13 +338,12 @@ function createDropdownItem(item, dropdownItemsContainer) {
  * grouping and sorting them by category, and then creating and appending
  * the dropdown items to the dropdown items container.
  */
-async function loadDropdownItems() {
-    const dropdownItemsContainer = document.getElementById("dropdownItems");
+async function loadDropdownItems(dropdownItemsContainer) {
     const items = await fetchFromApi('/producibleItems');
 
     if (!Array.isArray(items) || items.length === 0) return;
 
-    dropdownItemsContainer.innerHTML = "";
+    dropdownItemsContainer.innerHTML = '';
     const groupedItems = groupAndSortItems(items);
 
     for (const [category, items] of Object.entries(groupedItems)) {
@@ -365,7 +366,7 @@ function groupAndSortItems(items) {
 
     // Group items by category
     items.forEach((item) => {
-        const category = item.category || "Uncategorized";
+        const category = item.category || 'Uncategorized';
         if (!groupedItems[category]) groupedItems[category] = [];
         groupedItems[category].push(item);
     });

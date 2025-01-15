@@ -29,9 +29,9 @@ class PlanController
      * Retrieves a production plan by its ID.
      *
      * @param string $planId The ID of the production plan to retrieve.
-     * @return PlanDTO The data transfer object representing the production plan.
+     * @return PlanDTO|null The data transfer object representing the production plan or null if the plan is not found.
      */
-    public function getProductionPlan(string $planId): PlanDTO
+    public function getProductionPlan(string $planId): ?PlanDTO
     {
         return $this->planModel->getProductionPlan($planId);
     }
@@ -45,24 +45,10 @@ class PlanController
      */
     public function createProductionPlan(string $createdBy, string $displayName, array $items): void
     {
-        // Retrieve the production plan by its display name
-        $plan = $this->planModel->getProductionPlanByName($displayName);
-
-        // Check if the plan already exists
-        if ($plan !== null) {
-            // Set error message and form data in session
-            $_SESSION['plan_error'] = 'Plan with this name already exists.';
-            $_SESSION['plan_name'] = $displayName;
-            foreach ($items as $item => $amount) {
-                $_SESSION['plan_form_data'][$item] = [$amount];
-            }
-            http_response_code(400);
+        if ($this->planModel->createProductionPlan($createdBy, $displayName, $items)) {
+            header('Location: /plans');
         } else {
-            if ($this->planModel->createProductionPlan($createdBy, $displayName, $items)) {
-                header('Location: /plans');
-            } else {
-                http_response_code(500);
-            }
+            http_response_code(500);
         }
     }
 
@@ -85,6 +71,10 @@ class PlanController
      */
     public function updateProductionPlan(string $planId, string $displayName, array $items): void
     {
-        $this->planModel->updateProductionPlan($planId, $displayName, $items);
+        if ($this->planModel->updateProductionPlan($planId, $displayName, $items)) {
+            header('Location: /plans');
+        } else {
+            http_response_code(500);
+        }
     }
 }

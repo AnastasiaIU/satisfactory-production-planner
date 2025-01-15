@@ -1,15 +1,11 @@
 <?php
 
+require_once(__DIR__ . '/../utils/AuthHandler.php');
 require_once(__DIR__ . '/../controllers/PlanController.php');
 
 // My plans page route
 Route::add('/plans', function () {
-    // Check if the user is logged in
-    if (!isset($_SESSION['user'])) {
-        // If not logged in, redirect to the login page
-        header("Location: /login");
-        exit();
-    }
+    AuthHandler::checkUserLoggedIn();
 
     $planError = $_SESSION['plan_error'] ?? null;
     unset($_SESSION['plan_error']);
@@ -31,4 +27,21 @@ Route::add('/getPlans/([a-zA-Z0-9_-]*)', function ($userId) {
     $planController = new PlanController();
     $plans = $planController->fetchAllPlans($userId);
     echo json_encode($plans);
+});
+
+// Route for passing a plan to the main page
+Route::add('/plan/([a-zA-Z0-9_-]*)', function ($planId) {
+    AuthHandler::checkUserLoggedIn();
+
+    $planController = new PlanController();
+    $plan = $planController->getProductionPlan($planId);
+
+    if (!$plan || $plan->created_by !== $_SESSION['user']) {
+        $_SESSION['plan_error'] = 'Plan not found.';
+        header("Location: /");
+        exit();
+    }
+
+    $_SESSION['plan'] = $plan;
+    header("Location: /");
 });

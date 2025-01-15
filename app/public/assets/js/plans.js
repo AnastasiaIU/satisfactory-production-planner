@@ -18,13 +18,14 @@ function createPlanElement(plan, planList) {
         <div class="card-body d-flex flex-wrap align-items-center gap-2 justify-content-between">
             <p class="h6 m-0">${plan.display_name}</p>
             <div>
-                <a class="btn btn-primary">View/Edit</a>
+                <a class="btn btn-primary" id="viewBtn" data-view-plan-id="${plan.id}">View/Edit</a>
                 <a class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal" data-delete-plan-id="${plan.id}">Delete</a>
             </div>
         </div>
     `;
     planList.appendChild(planElement);
     addOnClickEventToDeleteBtn(plan, planElement);
+    addOnClickEventToViewBtn(planElement);
 }
 
 function addOnClickEventToDeleteBtn(plan, planElement) {
@@ -35,5 +36,13 @@ function addOnClickEventToDeleteBtn(plan, planElement) {
             document.getElementById('deletePlanId').value = plan.id;
             document.getElementById('deleteForm').submit();
         }
+    });
+}
+
+function addOnClickEventToViewBtn(planElement) {
+    const viewBtn = planElement.querySelector('.btn-primary');
+    viewBtn.addEventListener('click', () => {
+        const planId = viewBtn.getAttribute('data-view-plan-id');
+        window.location.href = `/plan/${planId}`;
     });
 }
