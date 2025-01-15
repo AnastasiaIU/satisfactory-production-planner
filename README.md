@@ -6,7 +6,7 @@ This application is a Production Planner designed for players of the popular fac
 
 This application is implemented using PHP with the MVC design pattern, leveraging relational databases for data management and ensuring a user-friendly and visually appealing interface using a CSS framework Bootstrap.
 
-<img src="app/public/assets/images/Screenshot.png" width="70%"/>
+<img src="app/public/assets/images/Screenshot.png" width="100%"/>
 
 ## Technical Implementation
 
