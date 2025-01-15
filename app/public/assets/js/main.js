@@ -19,6 +19,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     if (window.location.pathname === '/plans') {
         setCurrentNavItem('nav-item-plans');
+        await initPlans();
     }
 
     enableBootstrapFormValidation();

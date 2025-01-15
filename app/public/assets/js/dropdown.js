@@ -1,5 +1,3 @@
-let isDropdownLoaded = false;
-
 // The order in which categories should be displayed in the dropdown
 const categoryOrder = [
     "Raw Resources",
@@ -36,8 +34,8 @@ async function initDropdown() {
         form.classList.add('was-validated');
         const outputsList = document.getElementById('outputsList');
         const dropdownItemsContainer = document.getElementById("dropdownItems");
-        for (let item in planFormData) {
-            let dropdownElement = document.querySelector(`[data-item-id="${item}"]`);
+        for (const item in planFormData) {
+            const dropdownElement = document.querySelector(`[data-item-id="${item}"]`);
             await appendItemToOutputsList(dropdownElement, outputsList, dropdownItemsContainer, parseFloat(planFormData[item][0]));
         }
     }

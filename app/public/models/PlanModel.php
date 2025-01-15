@@ -15,7 +15,7 @@ class PlanModel extends BaseModel
      */
     public function fetchAllPlans(string $userId): array
     {
-        $query = self::$pdo->query(
+        $query = self::$pdo->prepare(
             'SELECT id, created_by, display_name
                     FROM `PRODUCTION PLAN`
                     WHERE created_by = :userId'
@@ -29,7 +29,7 @@ class PlanModel extends BaseModel
 
             $dto = new PlanDTO(
                 $plan['id'],
-                $plan['crated_by'],
+                $plan['created_by'],
                 $plan['display_name'],
                 $items
             );
