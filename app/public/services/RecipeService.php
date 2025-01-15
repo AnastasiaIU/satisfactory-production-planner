@@ -189,6 +189,13 @@ class RecipeService extends BaseService
         }
     }
 
+    /**
+     * Retrieves the form of an item from the data array.
+     *
+     * @param array $data The data array containing item information.
+     * @param string $item_id The ID of the item.
+     * @return string|null The form of the item, or null if not found.
+     */
     private function getItemForm(array $data, string $item_id): ?string
     {
         foreach ($data as $class) {

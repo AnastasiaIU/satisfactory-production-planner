@@ -216,7 +216,7 @@ function createListItem(itemId, itemIcon, itemName, amount) {
     listItem.className = 'list-group-item card d-flex flex-column align-items-start border-0 pt-0';
     listItem.innerHTML = `
         <div class='d-flex align-items-center'>
-            <img src="${itemIcon}" alt='icon' style="width: 50px; height: 50px; margin-right: 10px;">
+            <img src="${itemIcon}" alt='icon' class="list-item-image">
             <span>${itemName}</span>
         </div>
         <div class='d-flex align-items-center p-0'>
@@ -327,7 +327,7 @@ function createDropdownItem(item, dropdownItemsContainer) {
     li.innerHTML = `
                     <a class='dropdown-item' data-item-id="${item.id}">
                         <img src="/assets/images/${item.icon_name}" alt='icon'
-                             style="width: 50px; height: 50px; margin-right: 10px;">
+                             class="list-item-image">
                         ${item.display_name}
                     </a>`;
     dropdownItemsContainer.appendChild(li);

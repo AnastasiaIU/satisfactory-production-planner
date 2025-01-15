@@ -32,6 +32,9 @@ class RecipeDTO implements JsonSerializable
     }
 }
 
+/**
+ * Data Transfer Object (DTO) for representing recipe outputs.
+ */
 class RecipeOutputDTO implements JsonSerializable
 {
     public readonly string $recipe_id;
@@ -58,6 +61,9 @@ class RecipeOutputDTO implements JsonSerializable
     }
 }
 
+/**
+ * Data Transfer Object (DTO) for representing recipe inputs.
+ */
 class RecipeInputDTO implements JsonSerializable
 {
     public readonly string $recipe_id;
