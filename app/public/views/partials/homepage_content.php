@@ -1,4 +1,10 @@
 <main class="container-fluid d-flex flex-column flex-grow-1 p-0">
+    <div id="loadingSpinner" class="loading-spinner">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+        <span role="status" class="text-center">Calculating your graph.<br />Please, wait...</span>
+    </div>
     <section class="row flex-grow-1 column-gap-3 gap-3 m-3 p-0">
         <section class="card col d-flex flex-column m-0 p-0 flex-grow-1 overflow-scroll">
             <section class="p-3 d-flex flex-column flex-grow-1">

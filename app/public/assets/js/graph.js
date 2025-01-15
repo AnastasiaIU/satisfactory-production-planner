@@ -4,55 +4,60 @@
  * @param {string} itemId The ID of the item for which the production graph will be displayed.
  */
 async function displayProductionGraph(itemId) {
-    const productionGraphContainer = document.getElementById("productionGraph");
-    let graphRow = document.querySelector(`[data-item-id="graph ${itemId}"]`);
+    showLoadingSpinner();
+    try {
+        const productionGraphContainer = document.getElementById("productionGraph");
+        let graphRow = document.querySelector(`[data-item-id="graph ${itemId}"]`);
 
-    // If the graph row does not exist, create it
-    if (!graphRow) {
-        // Create containers
-        graphRow = createContainer(productionGraphContainer, false);
-        graphRow.dataset.itemId = `${itemId}`;
-        const outputContainer = createContainer(graphRow, true);
-        outputContainer.classList.add("output-container");
+        // If the graph row does not exist, create it
+        if (!graphRow) {
+            // Create containers
+            graphRow = createContainer(productionGraphContainer, false);
+            graphRow.dataset.itemId = `${itemId}`;
+            const outputContainer = createContainer(graphRow, true);
+            outputContainer.classList.add("output-container");
 
-        // Fetch the recipe for the item from the API
-        const recipe = await fetchFromApi(`/getRecipeForItem/${itemId}`);
+            // Fetch the recipe for the item from the API
+            const recipe = await fetchFromApi(`/getRecipeForItem/${itemId}`);
 
-        // Get user input for the item
-        const userInput = document.querySelector(`.quantity-input[data-item-id="${itemId}"]`).value;
+            // Get user input for the item
+            const userInput = document.querySelector(`.quantity-input[data-item-id="${itemId}"]`).value;
 
-        // Calculate the required production power
-        let productionPower = 0;
-        for (const output of recipe.output) {
-            if (output.item_id === itemId) {
-                productionPower = calculateProductionPower(userInput, output.amount);
-                break;
+            // Calculate the required production power
+            let productionPower = 0;
+            for (const output of recipe.output) {
+                if (output.item_id === itemId) {
+                    productionPower = calculateProductionPower(userInput, output.amount);
+                    break;
+                }
             }
+
+            // Fetch, create, and append outputs to the output container
+            for (const output of recipe.output) {
+                const outputItem = await fetchFromApi(`/getItem/${output.item_id}`);
+                const amount = output.item_id === itemId ? userInput :
+                    calculateAmount(output.amount, productionPower);
+                const outputElement = await appendItem(outputItem, amount, outputContainer);
+                outputElement.querySelector("img").classList.add("output");
+            }
+
+            // Append an arrow element to the graph row
+            const arrowOutput = appendArrow(graphRow, outputContainer);
+
+            // Fetch and append the machine to the graph row
+            const machine = await fetchFromApi(`/getMachine/${recipe.produced_in}`);
+            const machineQuantity = Math.ceil(productionPower);
+            const machineElement = appendMachine(machine, machineQuantity, graphRow, arrowOutput);
+
+            // Extend the graph by adding input items, arrows, and machines recursively
+            await extendGraph(recipe, productionPower, graphRow, machineElement);
+
+            // Add a padding class to the input container if it exists
+            const inputContainer = graphRow.querySelector('.input-container');
+            if (inputContainer !== null) inputContainer.classList.add("p-3");
         }
-
-        // Fetch, create, and append outputs to the output container
-        for (const output of recipe.output) {
-            const outputItem = await fetchFromApi(`/getItem/${output.item_id}`);
-            const amount = output.item_id === itemId ? userInput :
-                calculateAmount(output.amount, productionPower);
-            const outputElement = await appendItem(outputItem, amount, outputContainer);
-            outputElement.querySelector("img").classList.add("output");
-        }
-
-        // Append an arrow element to the graph row
-        const arrowOutput = appendArrow(graphRow, outputContainer);
-
-        // Fetch and append the machine to the graph row
-        const machine = await fetchFromApi(`/getMachine/${recipe.produced_in}`);
-        const machineQuantity = Math.ceil(productionPower);
-        const machineElement = appendMachine(machine, machineQuantity, graphRow, arrowOutput);
-
-        // Extend the graph by adding input items, arrows, and machines recursively
-        await extendGraph(recipe, productionPower, graphRow, machineElement);
-
-        // Add a padding class to the input container if it exists
-        const inputContainer = graphRow.querySelector('.input-container');
-        if (inputContainer !== null) inputContainer.classList.add("p-3");
+    } finally {
+        hideLoadingSpinner();
     }
 }
 
@@ -235,4 +240,18 @@ async function extendGraph(recipe, productionPower, container, insertBeforeEleme
             }
         }
     }
+}
+
+/**
+ * Displays the loading spinner by setting its display style to 'flex'.
+ */
+function showLoadingSpinner() {
+    document.getElementById('loadingSpinner').style.display = 'flex';
+}
+
+/**
+ * Hides the loading spinner by setting its display style to 'none'.
+ */
+function hideLoadingSpinner() {
+    document.getElementById('loadingSpinner').style.display = 'none';
 }
