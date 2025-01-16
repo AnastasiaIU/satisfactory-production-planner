@@ -19,6 +19,25 @@ function initLoginForm() {
 
     addEventListenerToLoginForm(form, email, password, inputEmailPrompt, inputPasswordPrompt);
     addEventListenerToLoginCheckbox(password);
+    addEventListenerToCredentials(email, password);
+}
+
+/**
+ * Adds an event listener to the credentials input.
+ * Resets the custom validity message on change.
+ *
+ * @param {HTMLInputElement} loginEmail The email input field.
+ * @param {HTMLInputElement} loginPassword The password input field.
+ */
+function addEventListenerToCredentials(loginEmail, loginPassword) {
+    loginEmail.addEventListener('change', () => {
+        loginEmail.setCustomValidity('');
+        loginPassword.setCustomValidity('');
+    });
+    loginPassword.addEventListener('change', () => {
+        loginEmail.setCustomValidity('');
+        loginPassword.setCustomValidity('');
+    });
 }
 
 /**

@@ -17,6 +17,33 @@ function initRegisterForm() {
 
     addEventListenerToForm(form, email, password, confirmPassword, confirmPasswordPrompt);
     addEventListenerToCheckbox(password, confirmPassword);
+    addEventListenerToCredentials(email, password, confirmPassword);
+}
+
+/**
+ * Adds an event listener to the credentials input.
+ * Resets the custom validity message on change.
+ *
+ * @param {HTMLInputElement} inputEmail The email input field.
+ * @param {HTMLInputElement} inputPassword The password input field.
+ * @param {HTMLInputElement} inputConfirmPassword The confirm password input field.
+ */
+function addEventListenerToCredentials(inputEmail, inputPassword, inputConfirmPassword) {
+    inputEmail.addEventListener('change', () => {
+        inputEmail.setCustomValidity('');
+        inputPassword.setCustomValidity('');
+        inputConfirmPassword.setCustomValidity('');
+    });
+    inputPassword.addEventListener('change', () => {
+        inputEmail.setCustomValidity('');
+        inputPassword.setCustomValidity('');
+        inputConfirmPassword.setCustomValidity('');
+    });
+    inputConfirmPassword.addEventListener('change', () => {
+        inputEmail.setCustomValidity('');
+        inputPassword.setCustomValidity('');
+        inputConfirmPassword.setCustomValidity('');
+    });
 }
 
 /**

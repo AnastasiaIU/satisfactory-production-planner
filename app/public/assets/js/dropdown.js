@@ -20,27 +20,39 @@ const categoryOrder = [
 async function initDropdown() {
     const dropdownItemsContainer = document.getElementById('dropdownItems');
     const outputsList = document.getElementById('outputsList');
+    const form = document.getElementById('planForm');
+    const planName = document.getElementById('planName');
 
     // Expose filter function globally for inline `onkeyup`
     window.filterDropdown = filterDropdown;
 
     addClearDropdownOnClose();
     await loadDropdownItems(dropdownItemsContainer);
-    addOnClickEventToDropdownItems(dropdownItemsContainer, outputsList);
-
-    const form = document.getElementById('planForm');
-    const planName = document.getElementById('planName');
+    addOnClickEventToDropdownItems(dropdownItemsContainer, outputsList, planName);
 
     // Load a plan if it is provided
     if (typeof plan !== 'undefined') {
         planName.value = plan.display_name;
         for (const [itemId, amount] of Object.entries(plan.items)) {
             const dropdownElement = document.querySelector(`[data-item-id="${itemId}"]`);
-            await appendItemToOutputsList(dropdownElement, outputsList, dropdownItemsContainer, parseFloat(amount));
+            await appendItemToOutputsList(dropdownElement, outputsList, dropdownItemsContainer, planName, parseFloat(amount));
         }
     }
 
     addEventListenerToPlanForm(form, planName, outputsList);
+    addEventListenerToPlanName(planName);
+}
+
+/**
+ * Adds an event listener to the plan name input field.
+ * Resets the custom validity message when the plan name changes.
+ *
+ * @param {HTMLInputElement} planName The plan name input field.
+ */
+function addEventListenerToPlanName(planName) {
+    planName.addEventListener('change', () => {
+        planName.setCustomValidity('');
+    });
 }
 
 /**
@@ -266,14 +278,14 @@ function addEventListenerToItemQuantity(listItem, dropdownItemsContainer, itemId
  * Handles the creation of a new list item in the output list and hides the clicked dropdown item.
  *
  */
-function addOnClickEventToDropdownItems(dropdownItemsContainer, outputsList) {
+function addOnClickEventToDropdownItems(dropdownItemsContainer, outputsList, planName) {
     dropdownItemsContainer.addEventListener('click', async (event) => {
         event.preventDefault();
 
         const target = event.target.closest(".dropdown-item");
 
         if (target) {
-            await appendItemToOutputsList(target, outputsList, dropdownItemsContainer);
+            await appendItemToOutputsList(target, outputsList, dropdownItemsContainer, planName);
         }
     });
 }
@@ -284,9 +296,11 @@ function addOnClickEventToDropdownItems(dropdownItemsContainer, outputsList) {
  * @param {HTMLElement} dropdownElement The dropdown item element that was selected.
  * @param {HTMLElement} outputsList The container element for the output list.
  * @param {HTMLElement} dropdownContainer The container element for the dropdown items.
- * @param amount
+ * @param {HTMLOutputElement} planName The input for the name of the production plan.
+ * @param {number} amount The amount of the item to be produced.
  */
-async function appendItemToOutputsList(dropdownElement, outputsList, dropdownContainer, amount = 1) {
+async function appendItemToOutputsList(dropdownElement, outputsList, dropdownContainer, planName, amount = 1) {
+    planName.setCustomValidity('');
     const itemId = dropdownElement.dataset.itemId;
     const itemName = dropdownElement.innerText.trim();
     const itemIcon = dropdownElement.querySelector('img')?.src || '';
