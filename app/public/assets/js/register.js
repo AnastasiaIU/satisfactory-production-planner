@@ -30,20 +30,27 @@ function initRegisterForm() {
  */
 function addEventListenerToCredentials(inputEmail, inputPassword, inputConfirmPassword) {
     inputEmail.addEventListener('change', () => {
-        inputEmail.setCustomValidity('');
-        inputPassword.setCustomValidity('');
-        inputConfirmPassword.setCustomValidity('');
+        resetCredentialsValidation(inputEmail, inputPassword, inputConfirmPassword);
     });
     inputPassword.addEventListener('change', () => {
-        inputEmail.setCustomValidity('');
-        inputPassword.setCustomValidity('');
-        inputConfirmPassword.setCustomValidity('');
+        resetCredentialsValidation(inputEmail, inputPassword, inputConfirmPassword);
     });
     inputConfirmPassword.addEventListener('change', () => {
-        inputEmail.setCustomValidity('');
-        inputPassword.setCustomValidity('');
-        inputConfirmPassword.setCustomValidity('');
+        resetCredentialsValidation(inputEmail, inputPassword, inputConfirmPassword);
     });
+}
+
+/**
+ * Resets the custom validity messages for the credentials input fields.
+ *
+ * @param {HTMLInputElement} inputEmail The email input field.
+ * @param {HTMLInputElement} inputPassword The password input field.
+ * @param {HTMLInputElement} inputConfirmPassword The confirm password input field.
+ */
+function resetCredentialsValidation(inputEmail, inputPassword, inputConfirmPassword) {
+    inputEmail.setCustomValidity('');
+    inputPassword.setCustomValidity('');
+    inputConfirmPassword.setCustomValidity('');
 }
 
 /**

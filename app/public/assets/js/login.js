@@ -31,13 +31,22 @@ function initLoginForm() {
  */
 function addEventListenerToCredentials(loginEmail, loginPassword) {
     loginEmail.addEventListener('change', () => {
-        loginEmail.setCustomValidity('');
-        loginPassword.setCustomValidity('');
+        resetCredentialsValidation(loginEmail, loginPassword);
     });
     loginPassword.addEventListener('change', () => {
-        loginEmail.setCustomValidity('');
-        loginPassword.setCustomValidity('');
+        resetCredentialsValidation(loginEmail, loginPassword);
     });
+}
+
+/**
+ * Resets the custom validity message on the email and password input fields.
+ *
+ * @param {HTMLInputElement} loginEmail The email input field.
+ * @param {HTMLInputElement} loginPassword The password input field.
+ */
+function resetCredentialsValidation(loginEmail, loginPassword) {
+    loginEmail.setCustomValidity('');
+    loginPassword.setCustomValidity('');
 }
 
 /**
