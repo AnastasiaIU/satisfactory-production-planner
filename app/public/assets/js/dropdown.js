@@ -230,6 +230,7 @@ function createListItem(itemId, itemIcon, itemName, amount) {
         <div class='d-flex align-items-center'>
             <img src="${itemIcon}" alt='icon' class="list-item-image">
             <span>${itemName}</span>
+            <button type="button" class="btn btn-danger ms-3" aria-label='Remove item' data-item-id="${itemId}">-</button>
         </div>
         <div class='d-flex align-items-center p-0'>
             <input type='number' name="${itemId}" class='form-control text-center quantity-input mt-1' value="${amount}" min='0' step='0.1' aria-label="${itemName} amount" data-item-id="${itemId}">
@@ -255,21 +256,57 @@ function addEventListenerToItemQuantity(listItem, dropdownItemsContainer, itemId
 
         if (currentValue < 0) currentValue = 0;
 
-        // Remove the corresponding production graph
-        const productionGraphContainer = document.getElementById('productionGraph');
-        const graphElement = productionGraphContainer.querySelector(`[data-item-id="${itemId}"]`);
-        graphElement.remove();
+        removeProductionGraph(itemId);
 
         if (currentValue === 0) {
-            // Remove the item from outputs
-            listItem.remove();
-
-            // Show the corresponding item in the dropdown again
-            const dropdownItem = dropdownItemsContainer.querySelector(`[data-item-id="${itemId}"]`);
-            changeVisibility(dropdownItem, true);
+            removeItemFromOutputs(listItem, dropdownItemsContainer, itemId);
         } else {
             await displayProductionGraph(itemId);
         }
+    });
+}
+
+/**
+ * Removes the production graph corresponding to the given item ID.
+ *
+ * @param {string} itemId The ID of the item.
+ */
+function removeProductionGraph(itemId) {
+    // Remove the corresponding production graph
+    const productionGraphContainer = document.getElementById('productionGraph');
+    const graphElement = productionGraphContainer.querySelector(`[data-item-id="${itemId}"]`);
+    graphElement.remove();
+}
+
+/**
+ * Removes an item from the output list and shows the corresponding dropdown item.
+ *
+ * @param {HTMLElement} listItem The list item element to be removed.
+ * @param {HTMLElement} dropdownItemsContainer The container element for the dropdown items.
+ * @param {string} itemId The ID of the item.
+ */
+function removeItemFromOutputs(listItem, dropdownItemsContainer, itemId) {
+    // Remove the item from outputs
+    listItem.remove();
+
+    // Show the corresponding item in the dropdown again
+    const dropdownItem = dropdownItemsContainer.querySelector(`[data-item-id="${itemId}"]`);
+    changeVisibility(dropdownItem, true);
+}
+
+/**
+ * Adds an event listener to the remove button of a list item to handle item removal.
+ *
+ * @param {HTMLElement} listItem The list item element to be removed.
+ * @param {HTMLElement} dropdownItemsContainer The container element for the dropdown items.
+ * @param {string} itemId The ID of the item.
+ */
+function addOnClickEventToRemoveBtn(listItem, dropdownItemsContainer, itemId) {
+    const removeBtn = listItem.querySelector('.btn-danger');
+
+    removeBtn.addEventListener('click', async () => {
+        removeProductionGraph(itemId);
+        removeItemFromOutputs(listItem, dropdownItemsContainer, itemId);
     });
 }
 
@@ -315,6 +352,7 @@ async function appendItemToOutputsList(dropdownElement, outputsList, dropdownCon
     await displayProductionGraph(itemId);
 
     addEventListenerToItemQuantity(listItem, dropdownContainer, itemId);
+    addOnClickEventToRemoveBtn(listItem, dropdownContainer, itemId);
 }
 
 /**
